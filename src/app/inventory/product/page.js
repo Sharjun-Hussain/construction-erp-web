@@ -513,14 +513,37 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                 </select>
               </F>
               <F k="defaultLocator"><input className="bigin-input" value={form.default_locator} onChange={(e) => set({ default_locator: e.target.value })} placeholder="Select an Option" /></F>
-              <F k="minPurchQty"><input className="bigin-input" type="number" step="0.001" value={form.min_purchase_qty} onChange={(e) => set({ min_purchase_qty: e.target.value })} /></F>
-              <F k="uomQty"><select className="bigin-input" value={form.purchase_qty_uom} onChange={(e) => set({ purchase_qty_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
-              <F k="minStockQty"><input className="bigin-input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} /></F>
-              <F k="uomQty"><select className="bigin-input" value={form.min_stock_uom} onChange={(e) => set({ min_stock_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "minPurchQty")}</label>
+                <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
+                  <input className="bigin-input" type="number" step="0.001" value={form.min_purchase_qty} onChange={(e) => set({ min_purchase_qty: e.target.value })} />
+                  <div style={{ minWidth: 130 }}>
+                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                    <select className="bigin-input" value={form.purchase_qty_uom} onChange={(e) => set({ purchase_qty_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "minStockQty")}</label>
+                <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
+                  <input className="bigin-input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} />
+                  <div style={{ minWidth: 130 }}>
+                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                    <select className="bigin-input" value={form.min_stock_uom} onChange={(e) => set({ min_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
+                  </div>
+                </div>
+              </div>
               <F k="openingDate"><input className="bigin-input" type="date" value={form.opening_date || ""} onChange={(e) => set({ opening_date: e.target.value })} /></F>
-              <div />
-              <F k="maxStockQty"><input className="bigin-input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} /></F>
-              <F k="uomQty"><select className="bigin-input" value={form.max_stock_uom} onChange={(e) => set({ max_stock_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "maxStockQty")}</label>
+                <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
+                  <input className="bigin-input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} />
+                  <div style={{ minWidth: 130 }}>
+                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                    <select className="bigin-input" value={form.max_stock_uom} onChange={(e) => set({ max_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
+                  </div>
+                </div>
+              </div>
             </div>
             </Sec>
             <Sec title={t(lang, "whStocks")}>
