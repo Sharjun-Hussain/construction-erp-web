@@ -111,10 +111,36 @@ const ICONS = {
       <path d="m9 12 2 2 4-4" />
     </Svg>
   ),
+  customers: (
+    <Svg>
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      <path d="M2 13h20" />
+    </Svg>
+  ),
+  guarantees: (
+    <Svg>
+      <path d="M3 21h18" />
+      <path d="M5 21V8l7-5 7 5v13" />
+      <path d="M9 21v-6h6v6" />
+    </Svg>
+  ),
   settings: (
     <Svg>
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </Svg>
+  ),
+  organizations: (
+    <Svg>
+      <path d="M3 21h18" />
+      <path d="M9 8h1" />
+      <path d="M9 12h1" />
+      <path d="M9 16h1" />
+      <path d="M14 8h1" />
+      <path d="M14 12h1" />
+      <path d="M14 16h1" />
+      <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
     </Svg>
   ),
   logout: (
@@ -133,9 +159,11 @@ const NAV_GROUPS = [
     items: [
       { href: "/dashboard", key: "dashboard", icon: "dashboard" },
       { href: "/projects", key: "projects", icon: "projects" },
+      { href: "/customers", key: "customers", icon: "customers" },
       { href: "/boqs", key: "boq", icon: "boq", badge: "BOQ" },
       { href: "/estimations", key: "estimation", icon: "estimation", badge: "QS" },
       { href: "/tenders", key: "tenders", icon: "tenders" },
+      { href: "/guarantees", key: "guarantees", icon: "guarantees", badge: "BG" },
     ],
   },
   {
@@ -152,6 +180,7 @@ const NAV_GROUPS = [
     key: "admin",
     titleKey: "administration",
     items: [
+      { href: "/organizations", key: "organizations", icon: "organizations", badge: "Super" },
       { href: "/users", key: "users", icon: "users" },
       { href: "/roles", key: "roles", icon: "roles" },
     ],

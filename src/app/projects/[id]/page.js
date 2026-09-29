@@ -7,7 +7,7 @@ import { useAppStore } from "@/store/useAppStore";
 
 const NEXT = { Draft: ["Tender"], Tender: ["Awarded", "Draft"], Awarded: ["InProgress"], InProgress: ["OnHold", "Completed"], OnHold: ["InProgress"], Completed: ["HandedOver"], HandedOver: [] };
 const fmt = (n) => Number(n || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
-const TABS = ["overview", "budget", "advances", "team", "milestones"];
+const TABS = ["overview", "activity", "budget", "advances", "team", "milestones", "documents"];
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -26,6 +26,9 @@ export default function ProjectDetail() {
   const [memForm, setMemForm] = useState({ member_name: "", role: "Site Engineer", phone: "" });
   const [miles, setMiles] = useState([]);
   const [msForm, setMsForm] = useState({ title: "", due_date: "", weight_pct: 0 });
+  const [activity, setActivity] = useState(null);
+  const [docs, setDocs] = useState([]);
+  const [customers, setCustomers] = useState([]);
 
   const loadAll = () => {
     api.get("/projects/" + id).then((r) => { setProj(r.data.data); setBudget(r.data.data.budgets || []); }).catch(() => {});
@@ -35,6 +38,9 @@ export default function ProjectDetail() {
     api.get("/projects/" + id + "/advances-balance").then((r) => setAdvBal(r.data.data)).catch(() => {});
     api.get("/projects/" + id + "/members").then((r) => setMembers(r.data.data || [])).catch(() => {});
     api.get("/site/milestones?project_id=" + id).then((r) => setMiles(r.data.data || [])).catch(() => {});
+    api.get("/projects/" + id + "/activity?limit=30").then((r) => setActivity(r.data.data)).catch(() => {});
+    api.get("/documents?entity_type=project&entity_id=" + id).then((r) => setDocs(r.data.data || [])).catch(() => {});
+    api.get("/customers?limit=200").then((r) => setCustomers(r.data.data || [])).catch(() => {});
   };
   useEffect(() => { loadAll(); }, [id]);
 
@@ -55,6 +61,15 @@ export default function ProjectDetail() {
   const delMember = (m) => act(() => api.delete(`/projects/${id}/members/${m.id}`));
   const addMile = (e) => { e.preventDefault(); act(() => api.post("/site/milestones", { ...msForm, project_id: id, weight_pct: Number(msForm.weight_pct) })).then(() => setMsForm({ title: "", due_date: "", weight_pct: 0 })); };
   const setMile = (m, status) => act(() => api.put("/site/milestones/" + m.id, { status }));
+  const dl = async (d) => {
+    try {
+      const r = await api.get(`/documents/${d.id}/download`, { responseType: "blob" });
+      const url = URL.createObjectURL(r.data);
+      const a = document.createElement("a");
+      a.href = url; a.download = d.file_name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (e) { setMsg("Download failed"); }
+  };
 
   if (!proj) return <div className="card">...</div>;
   return (
@@ -82,7 +97,21 @@ export default function ProjectDetail() {
       </div>
 
       {tab === "overview" && (
-        <div className="grid stats" style={{ marginTop: 14 }}>
+        <>
+          <div className="card" style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <b style={{ fontSize: 13 }}>{t(lang, "customers")}:</b>
+            <span>{proj.customer ? `${proj.customer.code} — ${proj.customer.name}` : (proj.client_name || "-")}</span>
+            <span style={{ flex: 1 }} />
+            <select
+              className="select" style={{ maxWidth: 260 }}
+              value={proj.client_id || ""}
+              onChange={(e) => act(() => api.put("/projects/" + id, { client_id: e.target.value || null }))}
+            >
+              <option value="">{t(lang, "linkCustomer")}</option>
+              {customers.map((c) => (<option key={c.id} value={c.id}>{c.code} — {c.name}</option>))}
+            </select>
+          </div>
+          <div className="grid stats" style={{ marginTop: 14 }}>
           <div className="card stat"><div className="k">{t(lang, "contractValue")}</div><div className="v">{fmt(proj.contract_value)}</div></div>
           <div className="card stat"><div className="k">{t(lang, "progress")}</div><div className="v">{sum?.progress_pct ?? 0}%</div></div>
           <div className="card stat"><div className="k">{t(lang, "billed")}</div><div className="v">{fmt(sum?.ipc_billed)}</div></div>
@@ -91,7 +120,8 @@ export default function ProjectDetail() {
           <div className="card stat"><div className="k">{t(lang, "costIncurred")}</div><div className="v">{fmt(wip?.cost_incurred)}</div></div>
           <div className="card stat"><div className="k">{t(lang, "earnedValue")}</div><div className="v">{fmt(wip?.earned_value)}</div></div>
           <div className="card stat"><div className="k">{t(lang, "balance")}</div><div className="v">{fmt(advBal?.balance)}</div></div>
-        </div>
+          </div>
+        </>
       )}
 
       {tab === "budget" && (
@@ -171,6 +201,54 @@ export default function ProjectDetail() {
                   {m.status === "Pending" && <button className="btn ghost sm" onClick={() => setMile(m, "InProgress")}>Start</button>}
                   {m.status !== "Completed" && <button className="btn ghost sm" onClick={() => setMile(m, "Completed")}>{t(lang, "markDone")}</button>}
                 </td></tr>
+            ))}</tbody>
+          </table></div>
+        </div>
+      )}
+
+      {tab === "activity" && (
+        <div className="card" style={{ marginTop: 14 }}>
+          <div className="muted" style={{ marginBottom: 10 }}>
+            {t(lang, "manpower7")}: <b>{activity?.last_7d_manpower_days ?? 0}</b>
+          </div>
+          <div className="feed">
+            {(activity?.feed || []).map((f, i) => (
+              <div key={i} className="feed-row">
+                <span className="feed-dot" style={{ background: { dpr: "#16a34a", grn: "#0d9488", sc_cert: "#ea580c", ipc: "#db2777", variation: "#7c3aed", milestone: "#2563eb", tender: "#9333ea", guarantee: "#a86a12" }[f.kind] || "#94a3b8" }} />
+                <span className="feed-tag">{f.kind}</span>
+                <span className="feed-txt">{f.title}</span>
+                <span className={"badge " + (f.status === "Approved" || f.status === "Completed" || f.status === "Paid" ? "Completed" : f.status === "Draft" || f.status === "Pending" ? "Draft" : "Submitted")}>{f.status}</span>
+              </div>
+            ))}
+            {!(activity?.feed || []).length && <p className="muted">{t(lang, "noResults")}</p>}
+          </div>
+        </div>
+      )}
+
+      {tab === "documents" && (
+        <div className="card" style={{ marginTop: 14 }}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const file = e.target.file.files[0];
+              if (!file) return;
+              const fd = new FormData();
+              fd.append("file", file);
+              fd.append("entity_type", "project");
+              fd.append("entity_id", id);
+              act(() => api.post("/documents/upload", fd));
+              e.target.reset();
+            }}
+            style={{ display: "flex", gap: 8, marginBottom: 12 }}
+          >
+            <input type="file" name="file" className="input" style={{ maxWidth: 320 }} />
+            <button className="btn sm" type="submit">{t(lang, "uploadLbl")}</button>
+          </form>
+          <div className="table-wrap"><table className="tbl">
+            <thead><tr><th>{t(lang, "title")}</th><th></th></tr></thead>
+            <tbody>{docs.map((d) => (
+              <tr key={d.id}><td>{d.file_name}</td>
+                <td><button className="btn ghost sm" onClick={() => dl(d)}>{t(lang, "downloadLbl")}</button></td></tr>
             ))}</tbody>
           </table></div>
         </div>
