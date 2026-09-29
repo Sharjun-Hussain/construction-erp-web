@@ -32,16 +32,16 @@ function PriceListDrawer({ editRow, onClose, onSaved }) {
 
   return (
     <div className="modal-ov" onClick={onClose}>
-      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-panel modal-compact" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <h3>{editRow ? form.name || "Price List" : "Price List"}</h3>
           <button type="button" className="modal-x" onClick={onClose} aria-label="Close">×</button>
         </div>
-        {msg && <div className="alert err" style={{ margin: "14px 22px 0" }}>{msg}</div>}
+        {msg && <div className="alert err" style={{ margin: "12px 18px 0" }}>{msg}</div>}
         <div className="modal-body">
           <div className="bigin-form-field">
             <label>Price List Name <span className="req">*</span></label>
-            <input className="bigin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <input className="bigin-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
           </div>
           <div className="bigin-form-field">
             <label>Price List Name Arabic</label>
@@ -49,28 +49,28 @@ function PriceListDrawer({ editRow, onClose, onSaved }) {
           </div>
           <div className="bigin-form-field">
             <label>Description</label>
-            <textarea className="bigin-input" rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <textarea className="bigin-input" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </div>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-            <div className="bigin-form-field" style={{ maxWidth: 150 }}>
+          <div className="modal-inline-row">
+            <div className="bigin-form-field" style={{ maxWidth: 120 }}>
               <label>Currency</label>
               <select className="bigin-input" value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })}>
                 {["SAR", "USD", "EUR", "AED", "KWD", "QAR", "BHD", "OMR"].map((x) => (<option key={x}>{x}</option>))}
               </select>
             </div>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
-              <input type="checkbox" checked={!!form.is_default} onChange={(e) => setForm({ ...form, is_default: e.target.checked })} style={{ accentColor: "#0ba360", width: 15, height: 15 }} />
-              <span>Default price list</span>
+            <label className="modal-check">
+              <input type="checkbox" checked={!!form.is_default} onChange={(e) => setForm({ ...form, is_default: e.target.checked })} />
+              <span>Default</span>
             </label>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} style={{ accentColor: "#0ba360", width: 15, height: 15 }} />
+            <label className="modal-check">
+              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
               <span>{t(lang, "activeLbl")}</span>
             </label>
           </div>
         </div>
         <div className="modal-foot">
-          <button type="button" className="btn ghost" onClick={onClose}>{t(lang, "closeLbl")}</button>
-          <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 700 }} disabled={busy} onClick={save}>
+          <button type="button" className="btn ghost sm" onClick={onClose}>{t(lang, "closeLbl")}</button>
+          <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 700 }} disabled={busy} onClick={save}>
             {busy ? "..." : t(lang, "saveLbl").toUpperCase()}
           </button>
         </div>

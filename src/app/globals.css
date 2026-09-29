@@ -3945,3 +3945,14 @@ textarea.bigin-input { min-height: 84px; resize: vertical; line-height: 1.5; }
   padding: 14px 22px; background: var(--bg);
   border-top: 1px solid var(--border-soft);
 }
+
+/* compact modal */
+.modal-panel.modal-compact { width: 470px; border-radius: 10px; }
+.modal-compact .modal-head { padding: 11px 18px; }
+.modal-compact .modal-head h3 { font-size: 15px; }
+.modal-compact .modal-body { padding: 14px 18px; gap: 10px; }
+.modal-compact .modal-foot { padding: 11px 18px; }
+.modal-compact textarea.bigin-input { min-height: 64px; }
+.modal-inline-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+.modal-check { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; padding-bottom: 9px; }
+.modal-check input { accent-color: #0ba360; width: 15px; height: 15px; }

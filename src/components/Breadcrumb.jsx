@@ -30,6 +30,8 @@ const ROUTE_KEY = {
   orders: "Sales Order",
   department: "Department",
   departments: "Department",
+  warehouse: "Warehouses",
+  warehouses: "Warehouses",
 };
 
 // Routes where project context doesn't belong

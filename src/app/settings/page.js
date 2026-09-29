@@ -102,7 +102,7 @@ const TILES = {
   approvals: { title: "Approvals Inbox", desc: "Pending document approvals, review queue & logs", icon: "inbox", tint: "green", kind: "panel", comp: "inbox", tag: "Approval Inbox" },
   report_pdf: { title: "Report & PDF Layouts", desc: "Official print branding, header logos & document templates", icon: "file", tint: "rose", kind: "panel", comp: "reportpdf", tag: "Branding & Print" },
 
-  warehouse: { title: "Stores & Warehouses", desc: "Central storage yards, site laydown areas & logistics", icon: "warehouse", tint: "orange", kind: "lookup", lookup: "warehouse", tag: "Lookup" },
+  warehouse: { title: "Stores & Warehouses", desc: "Central storage yards, site laydown areas & logistics", icon: "warehouse", tint: "orange", kind: "link", href: "/inventory/warehouse", tag: "Warehouse Management" },
   item_category: { title: "Material & Item Categories", desc: "BOQ resources, steel, concrete, finishing & equipment", icon: "archive", tint: "blue", kind: "lookup", lookup: "item_category", tag: "Lookup" },
   uom: { title: "Units of Measurement (UOM)", desc: "Metric & imperial engineering units (m2, m3, Ton, LM, LS)", icon: "ruler", tint: "cyan", kind: "lookup", lookup: "uom", tag: "Lookup" },
   manufacturer: { title: "Approved Manufacturers", desc: "Pre-qualified suppliers, fabricators & plant vendors", icon: "factory", tint: "slate", kind: "lookup", lookup: "manufacturer", tag: "Lookup" },
