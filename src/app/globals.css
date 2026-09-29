@@ -3848,3 +3848,71 @@ textarea.bigin-input { min-height: 84px; resize: vertical; line-height: 1.5; }
 .bigin-input:hover { border-color: #b9c6e2; }
 .bigin-input:focus { outline: none; border-color: #0ba360; box-shadow: 0 0 0 3px rgba(11, 163, 96, 0.13); }
 .bigin-input:disabled { background: var(--bg); color: var(--muted); }
+
+/* item sheet: underline tabs (Tranquil style) */
+.underline-tabs { background: transparent; border-bottom: 1px solid var(--border); padding: 0 4px; gap: 4px; }
+.underline-tabs .bigin-tab-pill {
+  background: transparent; border: none; border-radius: 0;
+  padding: 10px 14px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.underline-tabs .bigin-tab-pill:hover { background: transparent; color: var(--text); border-bottom-color: var(--border); }
+.underline-tabs .bigin-tab-pill.active { background: transparent; color: #0ba360; border-bottom-color: #0ba360; }
+
+/* item sheet: narrower than full estimation sheet */
+.bigin-drawer.sheet-wide.item-sheet { width: 90vw !important; max-width: 1400px !important; }
+
+/* classic bordered grid (ERP style) */
+.tbl.tbl-classic { border: 1px solid #d7e0ec; }
+.tbl.tbl-classic th {
+  background: #eef2f7; border: 1px solid #d7e0ec;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #475569; padding: 8px 8px; white-space: nowrap;
+}
+.tbl.tbl-classic td { border: 1px solid #e2e8f0; padding: 6px 8px; }
+.tbl.tbl-classic tbody tr:hover td { background: #f8fafc; }
+.tbl.tbl-classic .bigin-input { padding: 7px 9px; font-size: 13px; }
+
+/* classic sheet: inputs sit flush inside bordered cells */
+.tbl.tbl-classic td { padding: 0; vertical-align: middle; }
+.tbl.tbl-classic td .bigin-input {
+  border: none; border-radius: 0; background: transparent;
+  padding: 9px 8px; font-size: 13px; box-shadow: none; height: 100%;
+}
+.tbl.tbl-classic td .bigin-input:hover { border: none; background: #f8fafc; }
+.tbl.tbl-classic td .bigin-input:focus { border: none; background: #fff; box-shadow: inset 0 0 0 2px var(--primary); }
+.tbl.tbl-classic td .bigin-input:disabled { background: #f1f5f9; color: var(--muted); }
+.tbl.tbl-classic td input[type="number"] { text-align: right; }
+.tbl.tbl-classic td .cell-pad { padding: 9px 8px; display: block; }
+
+/* classic sheet v2: borderless inputs that reveal on hover/focus (cells keep spacing) */
+.tbl.tbl-classic td { padding: 6px 8px; }
+.tbl.tbl-classic td .bigin-input {
+  border-color: transparent; background: transparent; border-radius: 4px;
+  padding: 7px 8px; box-shadow: none;
+}
+.tbl.tbl-classic td .bigin-input:hover { border-color: #cbd5e1; background: #fff; }
+.tbl.tbl-classic td .bigin-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(29, 91, 216, 0.13); }
+.tbl.tbl-classic td .bigin-input:disabled { background: transparent; color: var(--muted); }
+.tbl.tbl-classic td input[type="number"] { text-align: right; }
+
+/* classic sheet v3: bare inputs, no chrome, no spinners, compact */
+.tbl.tbl-classic td { padding: 4px 6px; }
+.tbl.tbl-classic td .bigin-input {
+  border: none; border-radius: 0; background: transparent;
+  padding: 3px 5px; font-size: 13px; box-shadow: none; outline: none;
+}
+.tbl.tbl-classic td .bigin-input:hover,
+.tbl.tbl-classic td .bigin-input:focus {
+  border: none; border-radius: 0; box-shadow: none; outline: none; background: #fff;
+}
+.tbl.tbl-classic td .bigin-input:disabled { background: transparent; }
+.tbl.tbl-classic td input[type="number"]::-webkit-outer-spin-button,
+.tbl.tbl-classic td input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tbl.tbl-classic td input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+/* classic sheet headers: plain text, wrap when long */
+.tbl.tbl-classic th {
+  font-weight: 400; letter-spacing: 0;
+  white-space: normal; line-height: 1.35; vertical-align: bottom;
+}

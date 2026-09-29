@@ -298,7 +298,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
 
   return (
     <div className="bigin-drawer-overlay" onClick={onClose}>
-      <div className="bigin-drawer sheet-wide" onClick={(e) => e.stopPropagation()}>
+      <div className="bigin-drawer sheet-wide item-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="bigin-drawer-head" style={{ padding: "10px 20px" }}>
           <div className="bigin-drawer-title-wrap" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span className={"badge " + (isEdit ? (form.is_active ? "Approved" : "Draft") : "InProgress")}>
@@ -343,7 +343,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
           </Sec>
 
           {/* Sheet tabs */}
-          <div className="bigin-sheet-tabs" style={{ marginTop: 18 }}>
+          <div className="bigin-sheet-tabs underline-tabs" style={{ marginTop: 18 }}>
             {TABS.map((tb) => (
               <button key={tb} type="button" className={`bigin-tab-pill ${tab === tb ? "active" : ""}`} onClick={() => setTab(tb)}>
                 {t(lang, "itemTab_" + tb)}
@@ -363,7 +363,9 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
               <F k="mfrPartNo"><input className="bigin-input" value={form.manufacturer_part_no} onChange={(e) => set({ manufacturer_part_no: e.target.value })} /></F>
               <F k="modelNo"><input className="bigin-input" value={form.model_no} onChange={(e) => set({ model_no: e.target.value })} /></F>
               <F k="suffix"><input className="bigin-input" value={form.suffix} onChange={(e) => set({ suffix: e.target.value })} /></F>
-              <F k="category" span>
+            </div>
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", marginTop: 12 }}>
+              <F k="category">
                 <div style={{ display: "flex", gap: 6 }}>
                   <select className="bigin-input" value={form.category} onChange={(e) => set({ category: e.target.value })}>
                     <option value="">Select an Option</option>
@@ -371,7 +373,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   </select><Plus onClick={() => quickAdd("item_category", "category")} />
                 </div>
               </F>
-              <F k="manufacture" span>
+              <F k="manufacture">
                 <div style={{ display: "flex", gap: 6 }}>
                   <select className="bigin-input" value={form.manufacturer} onChange={(e) => set({ manufacturer: e.target.value })}>
                     <option value="">Select an Option</option>
@@ -379,7 +381,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   </select><Plus onClick={() => quickAdd("manufacturer", "manufacturer")} />
                 </div>
               </F>
-              <F k="vatRate" span>
+              <F k="vatRate">
                 <select className="bigin-input" value={form.vat_rate_id} onChange={(e) => set({ vat_rate_id: e.target.value })}>
                   <option value="">Select an Option</option>
                   {vatRates.map((v) => (<option key={v.id} value={v.id}>{v.name} ({v.rate}%)</option>))}
@@ -444,13 +446,23 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
               </label>
             </Sec>
             <Sec title={t(lang, "uomConversions")}>
-              <div className="table-wrap"><table className="tbl">
+              <div className="table-wrap"><table className="tbl tbl-classic">
+                <colgroup>
+                  <col style={{ minWidth: 190 }} />
+                  <col style={{ width: 62 }} />
+                  <col style={{ width: 88 }} />
+                  <col style={{ width: 78 }} />
+                  <col span={4} style={{ width: 88 }} />
+                  <col style={{ width: 68 }} />
+                  <col style={{ width: 68 }} />
+                  <col style={{ width: 44 }} />
+                </colgroup>
                 <thead><tr>
-                  <th>UOM</th><th style={{ textAlign: "center" }}>Base</th><th style={{ textAlign: "right" }}>Conversion</th>
-                  <th style={{ textAlign: "right" }}>Markup %</th><th style={{ textAlign: "right" }}>Purchase</th>
-                  <th style={{ textAlign: "right" }}>Cost</th><th style={{ textAlign: "right" }}>Sales</th>
-                  <th style={{ textAlign: "right" }}>Limit</th><th style={{ textAlign: "center" }}>Def. Sales</th>
-                  <th style={{ textAlign: "center" }}>Def. Purch.</th><th style={{ width: 44 }}></th>
+                  <th>UOM</th><th style={{ textAlign: "center" }}>Base UOM</th><th style={{ textAlign: "right" }}>Base<br />Conversion</th>
+                  <th style={{ textAlign: "right" }}>Markup %</th><th style={{ textAlign: "right" }}>Purchase Price</th>
+                  <th style={{ textAlign: "right" }}>Cost Price</th><th style={{ textAlign: "right" }}>Sales Price</th>
+                  <th style={{ textAlign: "right" }}>Limit Price</th><th style={{ textAlign: "center" }}>Default Sales</th>
+                  <th style={{ textAlign: "center" }}>Default Purchase</th><th style={{ width: 44 }}></th>
                 </tr></thead>
                 <tbody>
                   {uoms.map((u) => (
@@ -470,10 +482,14 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   ))}
                   <tr style={{ background: "#f8fafc" }}>
                     <td>
-                      <select className="bigin-input" value={newUom.uom} onChange={(e) => setNewUom({ ...newUom, uom: e.target.value })}>
-                        <option value="">Select UoM</option>
-                        {(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code} — {x.name}</option>))}
-                      </select>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <select className="bigin-input" value={newUom.uom} onChange={(e) => setNewUom({ ...newUom, uom: e.target.value })}>
+                          <option value="">Select UoM</option>
+                          {(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code} — {x.name}</option>))}
+                        </select>
+                        <button type="button" onClick={addUomRow} title="Add row"
+                          style={{ background: "#0ba360", color: "#fff", border: "none", borderRadius: 999, width: 26, height: 26, fontSize: 15, fontWeight: 700, lineHeight: 1, cursor: "pointer", flexShrink: 0 }}>+</button>
+                      </div>
                     </td>
                     <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_base} onChange={(e) => setNewUom({ ...newUom, is_base: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
                     <td><input className="bigin-input" type="number" step="0.0001" value={newUom.conversion_to_base} onChange={(e) => setNewUom({ ...newUom, conversion_to_base: e.target.value })} /></td>
@@ -484,7 +500,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                     <td><input className="bigin-input" type="number" step="0.01" value={form.limit_price_as_cost ? (newUom.cost_price || 0) : newUom.limit_price} disabled={form.limit_price_as_cost} onChange={(e) => setNewUom({ ...newUom, limit_price: e.target.value })} /></td>
                     <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_default_sales} onChange={(e) => setNewUom({ ...newUom, is_default_sales: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
                     <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_default_purchase} onChange={(e) => setNewUom({ ...newUom, is_default_purchase: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
-                    <td style={{ textAlign: "center" }}><button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={addUomRow}>+</button></td>
+                    <td></td>
                   </tr>
                 </tbody></table></div>
             </Sec>
@@ -508,7 +524,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
             </div>
             </Sec>
             <Sec title={t(lang, "whStocks")}>
-              <div className="table-wrap"><table className="tbl">
+              <div className="table-wrap"><table className="tbl tbl-classic">
                 <thead><tr><th>Warehouse</th><th>Locator</th><th style={{ textAlign: "right" }}>Quantity</th><th>UOM</th><th style={{ width: 44 }}></th></tr></thead>
                 <tbody>
                   {stocks.map((s) => (

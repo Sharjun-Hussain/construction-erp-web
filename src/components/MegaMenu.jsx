@@ -98,7 +98,7 @@ const TRANQUIL_GROUPS = [
           { label: "Dashboard", href: "/dashboard" },
           { label: "Enquiry", href: "/enquiries" },
           { label: "Quotation", href: "/sales/quotation" },
-          { label: "Sales Order", href: null },
+          { label: "Sales Order", href: "/sales/order" },
           { label: "Goods Delivery", href: null },
           { label: "Sales Invoice", href: null },
           { label: "Sales Return", href: null },

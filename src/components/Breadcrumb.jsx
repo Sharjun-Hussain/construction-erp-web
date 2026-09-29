@@ -25,6 +25,8 @@ const ROUTE_KEY = {
   sales: "sales",
   quotation: "quotation",
   quotations: "quotation",
+  order: "Sales Order",
+  orders: "Sales Order",
 };
 
 // Routes where project context doesn't belong
