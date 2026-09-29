@@ -268,7 +268,13 @@ const NAV_GROUPS = [
       { href: "/procurement/grns", key: "grn", icon: "grn", badge: "3-Way" },
       { href: "/procurement/suppliers", key: "suppliers", icon: "suppliers", badge: "AVL" },
       { href: "/procurement/indents", key: "materialIndents", icon: "materialIndents", badge: "MR" },
-      { href: "/procurement/materials", key: "materials", icon: "materials" },
+    ],
+  },
+  {
+    key: "inventory",
+    titleKey: "inventorySection",
+    items: [
+      { href: "/inventory/product", key: "product", icon: "materials" },
     ],
   },
   {

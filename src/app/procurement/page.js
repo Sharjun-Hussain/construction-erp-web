@@ -91,7 +91,7 @@ export default function ProcurementHubPage() {
       title: "Materials & Site Stock",
       code: "STOCK",
       desc: "Standard material catalog, unit rates benchmarking, project site balances, and reorder threshold alerts.",
-      href: "/procurement/materials",
+      href: "/inventory/product",
       badge: stats.reorderCount > 0 ? `${stats.reorderCount} Shortages` : "Healthy",
       highlight: "Inventory & Rates",
       color: "#06b6d4",

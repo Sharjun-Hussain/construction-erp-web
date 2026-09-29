@@ -183,7 +183,7 @@ const TRANQUIL_GROUPS = [
         iconKey: "inventory",
         color: "#0284c7",
         items: [
-          { label: "Item", href: "/procurement/materials" },
+          { label: "Item", href: "/inventory/product" },
           { label: "Bundle", href: null },
           { label: "Price List", href: null },
         ],

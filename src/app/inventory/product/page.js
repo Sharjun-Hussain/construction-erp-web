@@ -568,16 +568,14 @@ export default function MaterialsPage() {
       )}
       {msg && <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>{msg}</div>}
 
-      <div className="card" style={{ margin: "0 24px 14px", display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <div className="tabs" style={{ margin: 0 }}>
-          <button type="button" className={tab === "catalog" ? "on" : ""} onClick={() => setTab("catalog")}>{t(lang, "catalogTab")}</button>
-          <button type="button" className={tab === "stock" ? "on" : ""} onClick={() => setTab("stock")}>{t(lang, "stockTab")}</button>
+      {tab === "catalog" && (
+        <div style={{ display: "flex", justifyContent: "flex-end", margin: "0 24px 10px" }}>
+          <select className="select" style={{ maxWidth: 200 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); loadCatalog(1, limit); }}>
+            <option value="">All categories</option>
+            {(lookups.item_category || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
+          </select>
         </div>
-        <select className="select" style={{ maxWidth: 200 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); loadCatalog(1, limit); }}>
-          <option value="">All categories</option>
-          {(lookups.item_category || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
-        </select>
-      </div>
+      )}
 
       {tab === "catalog" ? (
         <DataTable
@@ -586,6 +584,9 @@ export default function MaterialsPage() {
           onLimit={(l) => { setLimit(l); setPage(1); loadCatalog(1, l); }}
           sortBy={sortBy} sortDir={sortDir} onSort={onSort}
           loading={loading} title={t(lang, "itemsTitle")}
+          activeFilter={t(lang, "catalogTab")}
+          filterOptions={[{ label: t(lang, "catalogTab"), value: "catalog" }, { label: t(lang, "stockTab"), value: "stock" }]}
+          onFilterSelect={(v) => setTab(v)}
           searchPlaceholder={t(lang, "search")} searchValue={search}
           onSearchChange={(v) => { setSearch(v); setPage(1); clearTimeout(window.__itm); window.__itm = setTimeout(() => loadCatalog(1, limit), 320); }}
           primaryAction={{ label: t(lang, "newItem"), onClick: () => setDrawer({ mode: "create" }) }}
@@ -596,6 +597,9 @@ export default function MaterialsPage() {
         <DataTable
           columns={stockColumns} rows={stocks} total={stocks.length} page={1} limit={stocks.length || 10}
           loading={loading} title={t(lang, "stockTab")}
+          activeFilter={t(lang, "stockTab")}
+          filterOptions={[{ label: t(lang, "catalogTab"), value: "catalog" }, { label: t(lang, "stockTab"), value: "stock" }]}
+          onFilterSelect={(v) => setTab(v)}
           stats={[{ label: t(lang, "stockTab"), value: stocks.length }]}
         />
       )}

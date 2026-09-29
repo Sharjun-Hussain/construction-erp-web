@@ -3411,3 +3411,303 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   .item-names { grid-template-columns: 1fr; }
   .item-drawer { width: 96vw; }
 }
+
+/* ================= TOPBAR BRAND, COMPANY & USER PROFILE ================= */
+.topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 8px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.topbar-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none !important;
+  flex-shrink: 0;
+}
+.topbar-brand-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #0ba360 0%, #057a44 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 850;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 5px rgba(11, 163, 96, 0.25);
+}
+.topbar-brand-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.topbar-app-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+.topbar-app-tag {
+  font-size: 9.5px;
+  font-weight: 750;
+  color: #0ba360;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.02em;
+}
+
+.topbar-v-divider {
+  width: 1px;
+  height: 18px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.topbar-company-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 9px;
+  border-radius: 6px;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+.topbar-company-name {
+  font-size: 12px;
+  font-weight: 650;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* User Profile in Topbar */
+.topbar-user-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.topbar-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 4px 9px 4px 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  font-family: inherit;
+}
+.topbar-user-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.topbar-avatar-badge {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #1d5bd8 0%, #1e40af 100%);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.topbar-online-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 1.5px solid #ffffff;
+}
+.topbar-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  line-height: 1.2;
+}
+[dir="rtl"] .topbar-user-info {
+  align-items: flex-end;
+  text-align: right;
+}
+.topbar-user-name {
+  font-size: 12px;
+  font-weight: 650;
+  color: #0f172a;
+}
+.topbar-user-role {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* User Profile Dropdown Popover */
+.topbar-user-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  padding: 12px;
+  z-index: 100;
+  animation: topbarPopIn 0.15s ease-out;
+}
+@keyframes topbarPopIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+[dir="rtl"] .topbar-user-popover {
+  right: auto;
+  left: 0;
+}
+.topbar-pop-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+}
+.topbar-pop-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1d5bd8 0%, #1e40af 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.topbar-pop-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+[dir="rtl"] .topbar-pop-details {
+  text-align: right;
+}
+.topbar-pop-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-pop-email {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-pop-role-tag {
+  align-self: flex-start;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #0ba360;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-top: 3px;
+}
+[dir="rtl"] .topbar-pop-role-tag {
+  align-self: flex-end;
+}
+.topbar-pop-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 10px 0;
+}
+.topbar-pop-company {
+  padding: 0 4px;
+  text-align: left;
+}
+[dir="rtl"] .topbar-pop-company {
+  text-align: right;
+}
+.topbar-pop-lbl {
+  font-size: 10px;
+  font-weight: 650;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.topbar-pop-val {
+  font-size: 12px;
+  font-weight: 650;
+  color: #334155;
+  margin-top: 2px;
+}
+.topbar-pop-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 1px;
+}
+.topbar-pop-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.topbar-pop-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: #334155;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+[dir="rtl"] .topbar-pop-link {
+  text-align: right;
+}
+.topbar-pop-link:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+.topbar-pop-link.logout {
+  color: #ef4444;
+}
+.topbar-pop-link.logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
