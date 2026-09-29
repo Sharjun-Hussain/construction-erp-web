@@ -662,8 +662,8 @@ export default function TendersPage() {
             </div>
 
             {/* Drawer Body Form */}
-            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="bigin-drawer-body">
+            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: "1 1 0%", minHeight: 0, height: "calc(100% - 110px)", overflow: "hidden" }}>
+              <div className="bigin-drawer-body" style={{ flex: "1 1 0%", minHeight: 0, overflowY: "auto" }}>
                 {/* Live Commercial KPI Banner */}
                 {drawerBidNum > 0 && (
                   <div className="bigin-kpi-banner" style={{ marginBottom: 16 }}>
@@ -1010,7 +1010,7 @@ export default function TendersPage() {
               </div>
 
               {/* Drawer Footer */}
-              <div className="bigin-drawer-foot">
+              <div className="bigin-drawer-foot" style={{ flexShrink: 0, position: "sticky", bottom: 0, zIndex: 30, background: "#ffffff", borderTop: "1px solid #edf2f7" }}>
                 <button
                   type="button"
                   className="btn ghost sm"

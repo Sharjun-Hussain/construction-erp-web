@@ -836,8 +836,8 @@ export default function Projects() {
               ))}
             </div>
 
-            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="bigin-drawer-body">
+            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: "1 1 0%", minHeight: 0, height: "calc(100% - 110px)", overflow: "hidden" }}>
+              <div className="bigin-drawer-body" style={{ flex: "1 1 0%", minHeight: 0, overflowY: "auto" }}>
                 {/* Live Commercial KPI Banner (shown dynamically once Contract Value > 0) */}
                 {contractValNum > 0 && (
                   <div className="bigin-kpi-banner">
@@ -1358,7 +1358,7 @@ export default function Projects() {
               </div>
 
               {/* Sheet Sticky Footer */}
-              <div className="bigin-drawer-foot">
+              <div className="bigin-drawer-foot" style={{ flexShrink: 0, position: "sticky", bottom: 0, zIndex: 30, background: "#ffffff", borderTop: "1px solid #edf2f7" }}>
                 <button type="button" className="btn ghost" onClick={closeNew}>
                   Cancel
                 </button>
@@ -1777,8 +1777,8 @@ export default function Projects() {
             {editLoading ? (
               <div style={{ textAlign: "center", padding: "40px 0", color: "#64748b" }}>Loading project data...</div>
             ) : (
-              <form onSubmit={updateProject} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-                <div className="bigin-drawer-body">
+              <form onSubmit={updateProject} style={{ display: "flex", flexDirection: "column", flex: "1 1 0%", minHeight: 0, height: "calc(100% - 110px)", overflow: "hidden" }}>
+                <div className="bigin-drawer-body" style={{ flex: "1 1 0%", minHeight: 0, overflowY: "auto" }}>
                   {/* Live Edit KPI Banner */}
                   <div className="bigin-kpi-banner">
                     <div className="bigin-kpi-item primary">
@@ -1968,7 +1968,7 @@ export default function Projects() {
                   </div>
                 </div>
 
-                <div className="bigin-drawer-foot">
+                <div className="bigin-drawer-foot" style={{ flexShrink: 0, position: "sticky", bottom: 0, zIndex: 30, background: "#ffffff", borderTop: "1px solid #edf2f7" }}>
                   <button type="button" className="btn ghost" onClick={closeEdit}>Cancel</button>
                   <button type="submit" className="btn" disabled={busy}>{busy ? "Saving..." : "Save Changes"}</button>
                 </div>

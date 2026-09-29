@@ -1837,6 +1837,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   from { opacity: 0; }
   to { opacity: 1; }
 }
+.bigin-drawer-overlay,
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  animation: scrimFade 0.2s ease-out;
+}
+
 .bigin-drawer {
   position: fixed;
   top: 0;
@@ -1844,13 +1856,29 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   inset-inline-end: 0;
   width: 600px;
   max-width: 100vw;
+  height: 100vh !important;
+  max-height: 100vh !important;
   background: #ffffff;
   box-shadow: -10px 0 35px rgba(15, 23, 42, 0.15);
   z-index: 101;
-  display: flex;
-  flex-direction: column;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
   animation: drawerSlide 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
+
+.bigin-drawer form,
+.drawer form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
 [dir="rtl"] .bigin-drawer {
   box-shadow: 10px 0 35px rgba(15, 23, 42, 0.15);
   animation-name: drawerSlideRtl;
@@ -1863,7 +1891,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
-.bigin-drawer-head {
+.bigin-drawer-head,
+.drawer-head {
   padding: 16px 24px;
   border-bottom: 1px solid #edf2f7;
   background: #ffffff;
@@ -1871,7 +1900,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
 }
 .bigin-drawer-title-wrap {
   display: flex;
@@ -1912,9 +1941,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   background: #fee2e2;
   color: #dc2626;
 }
-.bigin-drawer-body {
-  flex: 1;
-  overflow-y: auto;
+.bigin-drawer-body,
+.drawer-body {
+  flex: 1 1 0% !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
   padding: 20px 24px;
   background: #f8fafc;
   display: flex;
@@ -1958,15 +1989,20 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   color: #0f172a;
   font-weight: 600;
 }
-.bigin-drawer-foot {
-  padding: 14px 24px;
-  border-top: 1px solid #edf2f7;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-shrink: 0;
+.bigin-drawer-foot,
+.bigin-drawer-footer,
+.drawer-actions {
+  padding: 14px 24px !important;
+  border-top: 1px solid #edf2f7 !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 30 !important;
+  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.05) !important;
 }
 .bigin-cell-link {
   border: none;
@@ -1984,32 +2020,41 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 }
 
 /* Tranquil Sheet Enhancements (Wide Drawer, Section Tabs, KPI Live Banner) */
-.bigin-drawer.sheet-wide {
-  width: 92vw;
-  max-width: 1540px;
+.bigin-drawer.sheet-wide,
+.drawer.sheet-wide {
+  width: 92vw !important;
+  max-width: 1540px !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
 }
-.bigin-drawer.sheet-wide .bigin-drawer-grid {
+.bigin-drawer.sheet-wide .bigin-drawer-grid,
+.drawer.sheet-wide .bigin-drawer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px 20px;
 }
-.bigin-drawer.sheet-wide .form-grid {
+.bigin-drawer.sheet-wide .form-grid,
+.drawer.sheet-wide .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px 16px;
 }
 @media (max-width: 1200px) {
-  .bigin-drawer.sheet-wide .bigin-drawer-grid {
+  .bigin-drawer.sheet-wide .bigin-drawer-grid,
+  .drawer.sheet-wide .bigin-drawer-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 @media (max-width: 900px) {
-  .bigin-drawer.sheet-wide .bigin-drawer-grid {
+  .bigin-drawer.sheet-wide .bigin-drawer-grid,
+  .drawer.sheet-wide .bigin-drawer-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 600px) {
-  .bigin-drawer.sheet-wide .bigin-drawer-grid {
+  .bigin-drawer.sheet-wide .bigin-drawer-grid,
+  .drawer.sheet-wide .bigin-drawer-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -2022,8 +2067,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   background: #ffffff;
   border-bottom: 1px solid #edf2f7;
   scrollbar-width: none;
-  position: sticky;
-  top: 0;
+  flex-shrink: 0 !important;
+  position: relative;
   z-index: 10;
 }
 .bigin-sheet-tabs::-webkit-scrollbar {
@@ -2758,3 +2803,36 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 
 /* ---- Sidebar hidden (mega menu is the navigation) ---- */
 .shell.no-sidebar .main { margin-inline-start: 0; }
+
+/* ---- Settings hub tiles (Tranquil style) ---- */
+.set-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.set-tile {
+  background: #fff;
+  border: 1px solid var(--border-soft, #e5e9f0);
+  border-radius: 10px;
+  padding: 22px 10px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+  min-height: 150px;
+  justify-content: center;
+}
+.set-tile:hover {
+  box-shadow: 0 8px 22px rgba(20, 40, 80, 0.12);
+  border-color: var(--primary, #2f7cf6);
+  transform: translateY(-2px);
+}
+.set-tile-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; line-height: 1;
+}
+.set-tile-label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.4px;
+  color: #3c4a5a; text-transform: uppercase; text-align: center;
+  line-height: 1.4;
+}

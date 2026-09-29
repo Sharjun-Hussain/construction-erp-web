@@ -436,8 +436,8 @@ export default function ProposalsPage() {
               </button>
             </div>
 
-            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", height: "calc(100% - 65px)" }}>
-              <div className="bigin-drawer-body">
+            <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: "1 1 0%", minHeight: 0, height: "calc(100% - 65px)", overflow: "hidden" }}>
+              <div className="bigin-drawer-body" style={{ flex: "1 1 0%", minHeight: 0, overflowY: "auto" }}>
                 <div className="bigin-drawer-section">
                   <div className="bigin-drawer-section-title">01 Origin & Commercial Details</div>
                   <div className="bigin-drawer-grid">
@@ -583,7 +583,7 @@ export default function ProposalsPage() {
                 </div>
               </div>
 
-              <div className="bigin-drawer-footer">
+              <div className="bigin-drawer-footer" style={{ flexShrink: 0, position: "sticky", bottom: 0, zIndex: 30, background: "#ffffff", borderTop: "1px solid #edf2f7" }}>
                 <button
                   type="button"
                   className="btn ghost"
