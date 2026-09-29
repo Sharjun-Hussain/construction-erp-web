@@ -246,17 +246,11 @@ export default function PurchaseOrdersPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Purchase Orders (PO)</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil SCM · Issue, approve, and track purchase orders with 15% VAT & itemized receipts
-          </p>
+      {msg && (
+        <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>
+          {msg}
         </div>
-        <span className="spacer" />
-      </div>
-
-      {msg && <div className="alert err" style={{ marginBottom: 12 }}>{msg}</div>}
+      )}
 
       <DataTable
         columns={columns}
@@ -265,25 +259,31 @@ export default function PurchaseOrdersPage() {
         page={1}
         limit={filtered.length || 10}
         loading={loading}
-        title="Purchase Orders"
-        activeFilter={statusFilter || "All Statuses"}
+        title="All Purchase Orders"
+        activeFilter={statusFilter ? `${statusFilter} Orders` : "All Purchase Orders"}
         filterOptions={[
-          { label: "All Statuses", value: "" },
-          { label: "Draft", value: "Draft" },
-          { label: "Approved", value: "Approved" },
+          { label: "All Purchase Orders", value: "" },
+          { label: "Draft Orders", value: "Draft" },
+          { label: "Approved Orders", value: "Approved" },
           { label: "Partially Received", value: "PartiallyReceived" },
-          { label: "Received", value: "Received" },
+          { label: "Received Orders", value: "Received" },
         ]}
+        onFilterSelect={(val) => setStatusFilter(val)}
         onFilterChange={setStatusFilter}
-        search={search}
+        searchPlaceholder="Search PO by number, supplier, project..."
+        searchValue={search}
         onSearchChange={setSearch}
+        primaryAction={{
+          label: "Purchase Order",
+          onClick: openCreate,
+        }}
         onAdd={openCreate}
-        addLabel="New Purchase Order"
+        addLabel="Purchase Order"
         stats={[
           { label: "Total POs", value: rows.length },
           { label: "Approved", value: approvedCount },
           {
-            label: "Total Value (SAR)",
+            label: "Total Value",
             value: totalCommitted.toLocaleString(undefined, { maximumFractionDigits: 0 }) + " SAR",
           },
         ]}

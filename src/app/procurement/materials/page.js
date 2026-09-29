@@ -191,22 +191,12 @@ export default function MaterialsPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Materials & Stock Management</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil Inventory & Catalog · Master material codes, purchase price benchmarks & project site balances
-          </p>
-        </div>
-        <span className="spacer" />
-      </div>
-
       {/* REORDER SHORTAGE ALERT BANNER */}
       {reorders.length > 0 && (
         <div
           style={{
-            marginBottom: 16,
-            padding: "12px 16px",
+            margin: "10px 24px 14px",
+            padding: "10px 16px",
             background: "rgba(239, 68, 68, 0.08)",
             border: "1px solid rgba(239, 68, 68, 0.3)",
             borderRadius: 8,
@@ -217,14 +207,14 @@ export default function MaterialsPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 20 }}>⚠️</span>
+            <span style={{ fontSize: 18 }}>⚠️</span>
             <div>
               <b style={{ color: "var(--danger)" }}>
                 Low Stock Alert ({reorders.length} material{reorders.length > 1 ? "s" : ""})
               </b>
               <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
-                The following materials are below their minimum safety stock threshold:{" "}
-                {reorders.map((x) => `${x.material_code} (Shortage: ${x.shortage} ${x.unit})`).join(", ")}
+                Items below minimum safety stock threshold:{" "}
+                {reorders.map((x) => `${x.material_code} (-${x.shortage} ${x.unit})`).join(", ")}
               </div>
             </div>
           </div>
@@ -234,25 +224,11 @@ export default function MaterialsPage() {
         </div>
       )}
 
-      {msg && <div className="alert err" style={{ marginBottom: 12 }}>{msg}</div>}
-
-      {/* TABS */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 14, borderBottom: "1px solid var(--border)", paddingBottom: 8 }}>
-        <button
-          className={`btn ${tab === "catalog" ? "" : "ghost"}`}
-          onClick={() => setTab("catalog")}
-          style={{ padding: "6px 14px", fontSize: 13 }}
-        >
-          Material Master Catalog ({materials.length})
-        </button>
-        <button
-          className={`btn ${tab === "stock" ? "" : "ghost"}`}
-          onClick={() => setTab("stock")}
-          style={{ padding: "6px 14px", fontSize: 13 }}
-        >
-          Site Physical Stock ({stocks.length})
-        </button>
-      </div>
+      {msg && (
+        <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>
+          {msg}
+        </div>
+      )}
 
       {tab === "catalog" ? (
         <DataTable
@@ -262,11 +238,22 @@ export default function MaterialsPage() {
           page={1}
           limit={filteredMaterials.length || 10}
           loading={loading}
-          title="Material Catalog"
-          search={search}
+          title="Material Master Catalog"
+          activeFilter="Material Master Catalog"
+          filterOptions={[
+            { label: "Material Master Catalog", value: "catalog" },
+            { label: "Site Physical Stock", value: "stock" },
+          ]}
+          onFilterSelect={(v) => setTab(v)}
+          searchPlaceholder="Search material by code, description, category..."
+          searchValue={search}
           onSearchChange={setSearch}
+          primaryAction={{
+            label: "Material Item",
+            onClick: openCreate,
+          }}
           onAdd={openCreate}
-          addLabel="New Material Item"
+          addLabel="Material Item"
           stats={[
             { label: "Catalog Items", value: materials.length },
             { label: "Shortage Alerts", value: reorders.length },
@@ -280,13 +267,20 @@ export default function MaterialsPage() {
           page={1}
           limit={filteredStocks.length || 10}
           loading={loading}
-          title="Site Stock Balances"
-          search={search}
+          title="Site Physical Stock"
+          activeFilter="Site Physical Stock"
+          filterOptions={[
+            { label: "Material Master Catalog", value: "catalog" },
+            { label: "Site Physical Stock", value: "stock" },
+          ]}
+          onFilterSelect={(v) => setTab(v)}
+          searchPlaceholder="Search site stock by code, description..."
+          searchValue={search}
           onSearchChange={setSearch}
           stats={[
             { label: "Stocked Items", value: stocks.length },
             {
-              label: "Total Units on Hand",
+              label: "Total Units",
               value: stocks.reduce((acc, s) => acc + Number(s.qty || 0), 0).toLocaleString(),
             },
           ]}

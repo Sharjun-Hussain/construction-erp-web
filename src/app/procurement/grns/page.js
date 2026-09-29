@@ -260,17 +260,11 @@ export default function GoodsReceiptNotesPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Goods Receipt Notes (GRN)</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil 3-Way Match · Verify site physical receipt against purchase orders & update inventory
-          </p>
+      {msg && (
+        <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>
+          {msg}
         </div>
-        <span className="spacer" />
-      </div>
-
-      {msg && <div className="alert err" style={{ marginBottom: 12 }}>{msg}</div>}
+      )}
 
       <DataTable
         columns={columns}
@@ -279,18 +273,24 @@ export default function GoodsReceiptNotesPage() {
         page={1}
         limit={filtered.length || 10}
         loading={loading}
-        title="Goods Receipt Notes"
-        activeFilter={statusFilter || "All Statuses"}
+        title="All Goods Receipt Notes"
+        activeFilter={statusFilter ? (statusFilter === "Posted" ? "Posted Receipts" : "Draft Receipts") : "All Goods Receipt Notes"}
         filterOptions={[
-          { label: "All Statuses", value: "" },
-          { label: "Draft", value: "Draft" },
+          { label: "All Goods Receipt Notes", value: "" },
           { label: "Posted to Stock", value: "Posted" },
+          { label: "Draft Receipts", value: "Draft" },
         ]}
+        onFilterSelect={(val) => setStatusFilter(val)}
         onFilterChange={setStatusFilter}
-        search={search}
+        searchPlaceholder="Search GRN by number, delivery note, supplier..."
+        searchValue={search}
         onSearchChange={setSearch}
+        primaryAction={{
+          label: "Goods Receipt",
+          onClick: openCreate,
+        }}
         onAdd={openCreate}
-        addLabel="Receive Goods (GRN)"
+        addLabel="Goods Receipt"
         stats={[
           { label: "Total GRNs", value: rows.length },
           { label: "Posted to Stock", value: postedCount },

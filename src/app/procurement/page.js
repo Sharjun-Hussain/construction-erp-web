@@ -101,16 +101,6 @@ export default function ProcurementHubPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Procurement & Supply Chain Management</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil SCM Suite · Unified workflow connecting site material indents, approved vendor orders, 3-way GRN matching & warehouse stock
-          </p>
-        </div>
-        <span className="spacer" />
-      </div>
-
       {/* KPI TILES BANNER */}
       <div
         style={{

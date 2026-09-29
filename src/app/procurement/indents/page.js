@@ -218,17 +218,11 @@ export default function MaterialIndentsPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Material Indents & Requisitions (MR)</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil Site Requisitions · Site engineers raise indents against project requirements for procurement review
-          </p>
+      {msg && (
+        <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>
+          {msg}
         </div>
-        <span className="spacer" />
-      </div>
-
-      {msg && <div className="alert err" style={{ marginBottom: 12 }}>{msg}</div>}
+      )}
 
       <DataTable
         columns={columns}
@@ -237,20 +231,26 @@ export default function MaterialIndentsPage() {
         page={1}
         limit={filtered.length || 10}
         loading={loading}
-        title="Material Indents"
-        activeFilter={statusFilter || "All Statuses"}
+        title="All Material Indents (MR)"
+        activeFilter={statusFilter ? `${statusFilter} Indents` : "All Material Indents"}
         filterOptions={[
-          { label: "All Statuses", value: "" },
-          { label: "Submitted / Pending", value: "Submitted" },
-          { label: "Approved", value: "Approved" },
-          { label: "Ordered", value: "Ordered" },
-          { label: "Rejected", value: "Rejected" },
+          { label: "All Material Indents", value: "" },
+          { label: "Submitted Indents", value: "Submitted" },
+          { label: "Approved Indents", value: "Approved" },
+          { label: "Ordered Indents", value: "Ordered" },
+          { label: "Rejected Indents", value: "Rejected" },
         ]}
+        onFilterSelect={(val) => setStatusFilter(val)}
         onFilterChange={setStatusFilter}
-        search={search}
+        searchPlaceholder="Search indents by number, project, site notes..."
+        searchValue={search}
         onSearchChange={setSearch}
+        primaryAction={{
+          label: "Material Indent",
+          onClick: openCreate,
+        }}
         onAdd={openCreate}
-        addLabel="Raise Material Indent"
+        addLabel="Material Indent"
         stats={[
           { label: "Total Requisitions", value: rows.length },
           { label: "Pending Approvals", value: pendingCount },

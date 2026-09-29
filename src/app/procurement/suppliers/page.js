@@ -189,17 +189,11 @@ export default function SuppliersPage() {
 
   return (
     <div className="projects-page">
-      <div className="page-head">
-        <div>
-          <h2>Approved Vendor List (AVL)</h2>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: "var(--muted)" }}>
-            Tranquil Supplier Directory · Manage pre-qualified material vendors, subcontractors & Saudi CR/VAT records
-          </p>
+      {msg && (
+        <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>
+          {msg}
         </div>
-        <span className="spacer" />
-      </div>
-
-      {msg && <div className="alert err" style={{ marginBottom: 12 }}>{msg}</div>}
+      )}
 
       <DataTable
         columns={columns}
@@ -208,24 +202,30 @@ export default function SuppliersPage() {
         page={1}
         limit={filtered.length || 10}
         loading={loading}
-        title="Vendors & Suppliers"
-        activeFilter={cityFilter || "All Cities"}
+        title="All Suppliers (AVL)"
+        activeFilter={cityFilter ? `${cityFilter} Vendors` : "All Suppliers"}
         filterOptions={[
-          { label: "All Cities", value: "" },
-          { label: "Riyadh", value: "Riyadh" },
-          { label: "Jeddah", value: "Jeddah" },
-          { label: "Dammam", value: "Dammam" },
-          { label: "Neom", value: "Neom" },
+          { label: "All Suppliers", value: "" },
+          { label: "Riyadh Vendors", value: "Riyadh" },
+          { label: "Jeddah Vendors", value: "Jeddah" },
+          { label: "Dammam Vendors", value: "Dammam" },
+          { label: "Neom Vendors", value: "Neom" },
         ]}
+        onFilterSelect={(val) => setCityFilter(val)}
         onFilterChange={setCityFilter}
-        search={search}
+        searchPlaceholder="Search vendor by name, CR, VAT, code..."
+        searchValue={search}
         onSearchChange={setSearch}
+        primaryAction={{
+          label: "Supplier",
+          onClick: openCreate,
+        }}
         onAdd={openCreate}
-        addLabel="Register Supplier"
+        addLabel="Supplier"
         stats={[
           { label: "Total Vendors", value: rows.length },
           { label: "Active Suppliers", value: activeCount },
-          { label: "Saudi CR/VAT Verified", value: certifiedCount },
+          { label: "Saudi Verified", value: certifiedCount },
         ]}
       />
 
