@@ -512,6 +512,8 @@ export default function Roles() {
           onClick: openNew,
           title: "Create Custom Role (?new=1)",
         }}
+        onAdd={openNew}
+        addLabel="+ Role"
         bulkActions={[
           {
             label: "Export Selected",

@@ -519,6 +519,8 @@ export default function Organizations() {
           onClick: openNew,
           title: "Provision New Client Tenant (?new=1)",
         }}
+        onAdd={openNew}
+        addLabel="+ Organization"
         bulkActions={[
           {
             label: "Activate Selected",

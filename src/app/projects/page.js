@@ -730,6 +730,8 @@ export default function Projects() {
           onClick: openNew,
           title: "New Project Master Sheet (?new=1)",
         }}
+        onAdd={openNew}
+        addLabel="+ Project"
         bulkActions={[
           {
             label: "Export Selected",

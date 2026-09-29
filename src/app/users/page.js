@@ -537,6 +537,8 @@ export default function Users() {
           onClick: openNew,
           title: "Create New User Account (?new=1)",
         }}
+        onAdd={openNew}
+        addLabel="+ User"
         bulkActions={[
           {
             label: "Activate Selected",

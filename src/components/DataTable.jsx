@@ -85,10 +85,15 @@ export default function DataTable({
   filterOptions = [],
   activeFilter = "",
   onFilterChange,
+  onFilterSelect,
   search = "",
+  searchValue,
+  searchPlaceholder,
   onSearchChange,
   onAdd,
   addLabel = "+ Add",
+  primaryAction,
+  counts,
   viewMode = "list",
   onViewModeChange,
   onExport,
@@ -148,8 +153,16 @@ export default function DataTable({
   const pages = Math.max(1, Math.ceil((total || 0) / (limit || 10)));
   const from = total ? (page - 1) * limit + 1 : 0;
   const to = Math.min(total, page * limit);
-  const cleanAddLabel = String(addLabel || "Add").replace(/^(\s*\+\s*)+/, "").trim();
+  const handleAdd = primaryAction?.onClick || onAdd;
+  const rawAddLabel = primaryAction?.label || addLabel || "Add";
+  const cleanAddLabel = String(rawAddLabel).replace(/^(\s*\+\s*)+/, "").trim();
   const isClosing = cleanAddLabel.toLowerCase().includes("close");
+  const actualSearch = searchValue !== undefined ? searchValue : search;
+  const actualPlaceholder = searchPlaceholder || (t(lang, "search") + "...");
+  const handleFilterSelect = (val) => {
+    if (onFilterSelect) onFilterSelect(val);
+    if (onFilterChange) onFilterChange(val);
+  };
 
   return (
     <div className="bigin-dt-container">
@@ -288,7 +301,7 @@ export default function DataTable({
                           type="button"
                           className={"bigin-dropdown-item" + (activeFilter === val ? " active" : "")}
                           onClick={() => {
-                            onFilterChange?.(val);
+                            handleFilterSelect(val);
                             setFilterOpen(false);
                           }}
                         >
@@ -310,11 +323,11 @@ export default function DataTable({
                   </svg>
                   <input
                     type="text"
-                    placeholder={t(lang, "search") + "..."}
-                    value={search}
+                    placeholder={actualPlaceholder}
+                    value={actualSearch}
                     onChange={(e) => onSearchChange(e.target.value)}
                   />
-                  {search && (
+                  {actualSearch && (
                     <button type="button" onClick={() => onSearchChange("")} className="bigin-search-clear">
                       ×
                     </button>
@@ -357,11 +370,12 @@ export default function DataTable({
               )}
 
               {/* Primary Action Button (Bigin Green Pill Button) */}
-              {onAdd && (
+              {handleAdd && (
                 <button
                   type="button"
                   className={"bigin-add-btn" + (isClosing ? " close-state" : "")}
-                  onClick={onAdd}
+                  onClick={handleAdd}
+                  title={primaryAction?.title || `+ ${cleanAddLabel}`}
                 >
                   {isClosing ? (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -374,7 +388,7 @@ export default function DataTable({
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                   )}
-                  <span>{cleanAddLabel}</span>
+                  <span>{cleanAddLabel.startsWith("+") ? cleanAddLabel : `+ ${cleanAddLabel}`}</span>
                 </button>
               )}
 
