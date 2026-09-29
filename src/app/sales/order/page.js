@@ -301,26 +301,6 @@ export default function SalesOrderPage() {
           onTabChange={handleTabChange}
           onAdd={handleNew}
           addLabel="+ Sales Order"
-          rightActions={
-            <button
-              type="button"
-              className="btn sm"
-              onClick={handleNew}
-              style={{
-                background: "#0ba360",
-                borderColor: "#0ba360",
-                color: "#ffffff",
-                fontWeight: 650,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                borderRadius: 7,
-              }}
-            >
-              <span>+</span> New Sales Order
-            </button>
-          }
         />
       </div>
 

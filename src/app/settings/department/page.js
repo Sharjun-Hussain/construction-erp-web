@@ -245,27 +245,7 @@ export default function DepartmentPage() {
           searchPlaceholder="Search department name, Arabic name, code, description..."
           onSearchChange={(q) => setSearch(q)}
           onAdd={() => handleOpenModal(null)}
-          addLabel="+ Add Department"
-          rightActions={
-            <button
-              type="button"
-              className="btn sm"
-              onClick={() => handleOpenModal(null)}
-              style={{
-                background: "#0ba360",
-                borderColor: "#0ba360",
-                color: "#ffffff",
-                fontWeight: 650,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 16px",
-                borderRadius: 7,
-              }}
-            >
-              <span>+</span> Add Department
-            </button>
-          }
+          addLabel="+ Department"
         />
       </div>
 
