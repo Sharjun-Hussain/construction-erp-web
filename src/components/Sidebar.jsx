@@ -75,6 +75,46 @@ const ICONS = {
       <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
     </Svg>
   ),
+  purchaseOrders: (
+    <Svg>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M9 13h6" />
+      <path d="M9 17h4" />
+      <circle cx="16" cy="18" r="3" />
+      <path d="m15 18 1 1 2-2" />
+    </Svg>
+  ),
+  grn: (
+    <Svg>
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+      <path d="m3.3 7 8.7 5 8.7-5" />
+      <path d="M12 22V12" />
+    </Svg>
+  ),
+  suppliers: (
+    <Svg>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </Svg>
+  ),
+  materialIndents: (
+    <Svg>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+      <path d="M9 12h6" />
+      <path d="M9 16h4" />
+    </Svg>
+  ),
+  materials: (
+    <Svg>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
+    </Svg>
+  ),
   subcontract: (
     <Svg>
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -167,10 +207,20 @@ const NAV_GROUPS = [
     ],
   },
   {
+    key: "procurement",
+    titleKey: "procurementSection",
+    items: [
+      { href: "/procurement/pos", key: "purchaseOrders", icon: "purchaseOrders", badge: "PO" },
+      { href: "/procurement/grns", key: "grn", icon: "grn", badge: "3-Way" },
+      { href: "/procurement/suppliers", key: "suppliers", icon: "suppliers", badge: "AVL" },
+      { href: "/procurement/indents", key: "materialIndents", icon: "materialIndents", badge: "MR" },
+      { href: "/procurement/materials", key: "materials", icon: "materials" },
+    ],
+  },
+  {
     key: "operations",
     titleKey: "operations",
     items: [
-      { href: "/procurement", key: "procurement", icon: "procurement", badge: "3-Way" },
       { href: "/subcontract", key: "subcontract", icon: "subcontract" },
       { href: "/site", key: "site", icon: "site", badge: "DPR" },
       { href: "/ipc", key: "ipc", icon: "ipc", badge: "ZATCA" },
@@ -448,7 +498,7 @@ export default function Sidebar({
               {group.items.map((item) => {
                 const isActive =
                   path === item.href ||
-                  (item.href !== "/dashboard" && path?.startsWith(item.href));
+                  (item.href !== "/dashboard" && (path === item.href || path?.startsWith(item.href + "/")));
                 return (
                   <a
                     key={item.href}
