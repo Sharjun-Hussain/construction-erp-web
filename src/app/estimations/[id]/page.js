@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
+import TranquilEstimationModal from "@/components/TranquilEstimationModal";
 
 const fmt = (n, d = 0) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -30,7 +31,10 @@ export default function EstimationDetailPage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const [ok, setOk] = useState("");
-  const [sec, setSec] = useState("items"); // 'items' | 'parameters' | 'breakdown'
+  const [sec, setSec] = useState("items"); // 'items' | 'sheet' | 'parameters' | 'breakdown'
+
+  // Modal edit state
+  const [showEditSheetModal, setShowEditSheetModal] = useState(false);
 
   // Line item add/edit state
   const [showItemDrawer, setShowItemDrawer] = useState(false);
@@ -353,16 +357,61 @@ export default function EstimationDetailPage() {
             <span className={"badge " + est.status} style={{ fontSize: 11.5, padding: "3px 10px" }}>
               {est.status}
             </span>
+            {est.site && (
+              <span
+                style={{
+                  fontSize: 11,
+                  background: "#eff6ff",
+                  color: "#1e40af",
+                  border: "1px solid #bfdbfe",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  fontWeight: 600,
+                }}
+              >
+                📍 {est.site}
+              </span>
+            )}
+            {est.enquiry_no && (
+              <span
+                style={{
+                  fontSize: 11,
+                  background: "#f0fdf4",
+                  color: "#166534",
+                  border: "1px solid #bbf7d0",
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  fontWeight: 600,
+                }}
+              >
+                Enquiry: {est.enquiry_no}
+              </span>
+            )}
           </div>
 
           <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
             Project: <b style={{ color: "#1e293b" }}>{est.project?.code} — {est.project?.name}</b>
-            {est.project?.client_name && <span> • Client: {est.project.client_name}</span>}
+            {(est.customer_name || est.project?.client_name) && (
+              <span> • Client: <b style={{ color: "#0f172a" }}>{est.customer_name || est.project?.client_name}</b></span>
+            )}
+            {est.salesman && <span> • Lead: {est.salesman}</span>}
           </div>
         </div>
 
         {/* Action Controls */}
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          {/* Edit Sheet & Scope Button */}
+          {editable && (
+            <button
+              type="button"
+              className="btn ghost sm"
+              onClick={() => setShowEditSheetModal(true)}
+              style={{ fontWeight: 600, color: "#0ba360", borderColor: "#bbf7d0", display: "flex", alignItems: "center", gap: 6 }}
+            >
+              <span>✎</span> Edit Sheet & Scope
+            </button>
+          )}
+
           <button
             type="button"
             className="btn ghost sm"
@@ -552,6 +601,13 @@ export default function EstimationDetailPage() {
             onClick={() => setSec("items")}
           >
             Takeoff Line Items ({est.items?.length || 0})
+          </button>
+          <button
+            type="button"
+            className={`bigin-tab-pill ${sec === "sheet" ? "active" : ""}`}
+            onClick={() => setSec("sheet")}
+          >
+            Commercial Sheet & Scope
           </button>
           <button
             type="button"
@@ -793,7 +849,143 @@ export default function EstimationDetailPage() {
           </div>
         )}
 
-        {/* TAB 2: COMMERCIAL PARAMETERS & MARKUPS */}
+        {/* TAB 2: COMMERCIAL SHEET & SCOPE (TRANQUIL FIELDS) */}
+        {sec === "sheet" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Customer Box */}
+            <div className="tranquil-customer-box">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="tranquil-customer-title">Client & Contact Details</span>
+                {editable && (
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => setShowEditSheetModal(true)}
+                    style={{ fontSize: 11, padding: "2px 8px" }}
+                  >
+                    ✎ Edit Sheet Details
+                  </button>
+                )}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: "#166534", fontWeight: 700 }}>CUSTOMER NAME</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginTop: 2 }}>
+                    {est.customer_name || est.project?.client_name || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#166534", fontWeight: 700 }}>ADDRESS</div>
+                  <div style={{ fontSize: 13, color: "#334155", marginTop: 2 }}>
+                    {est.customer_address || "—"}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginTop: 4 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: "#166534", fontWeight: 700 }}>CONTACT PERSON</div>
+                  <div style={{ fontSize: 13, color: "#0f172a", marginTop: 2 }}>
+                    {est.contact_person || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#166534", fontWeight: 700 }}>CONTACT NO.</div>
+                  <div style={{ fontSize: 13, color: "#0f172a", marginTop: 2 }}>
+                    {est.contact_phone || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#166534", fontWeight: 700 }}>CONTACT EMAIL</div>
+                  <div style={{ fontSize: 13, color: "#0f172a", marginTop: 2 }}>
+                    {est.contact_email || "—"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Project Classification & Timeline Card */}
+            <div className="card" style={{ background: "#fff", padding: 20 }}>
+              <h3 style={{ margin: "0 0 14px", fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
+                Commercial Project Classification & Schedules
+              </h3>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>ESTIMATION DATE</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{est.date || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>SITE LOCATION</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{est.site || "Head Office"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>BID EXPIRY DATE</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{est.bid_expiry_date || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>EXECUTION WINDOW</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>
+                    {est.expected_start_date || "—"} ➔ {est.expected_end_date || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>SALESMAN / ESTIMATOR</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{est.salesman || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>SIMILAR PROJECTS</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{est.similar_projects || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>PROJECT TYPE & SERVICE</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>
+                    {est.project_type || "General"} • {est.service || "Contracting"}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>ARABIC NAME</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }} dir="rtl">{est.project_name_ar || "—"}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scope of Work */}
+            <div className="card" style={{ background: "#fff", padding: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#0f172a" }}>
+                  Technical Scope of Work
+                </h3>
+                {editable && (
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => setShowEditSheetModal(true)}
+                    style={{ fontSize: 11, padding: "2px 8px" }}
+                  >
+                    ✎ Edit Scope
+                  </button>
+                )}
+              </div>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 6,
+                  padding: 14,
+                  fontSize: 13,
+                  color: "#334155",
+                  lineHeight: 1.6,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {est.scope_of_work || "No specific scope of work text provided. Standard contract specifications apply."}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: COMMERCIAL PARAMETERS & MARKUPS */}
         {sec === "parameters" && (
           <div className="card" style={{ maxWidth: 840, background: "#fff", padding: 24 }}>
             <div style={{ marginBottom: 20 }}>
@@ -909,7 +1101,7 @@ export default function EstimationDetailPage() {
           </div>
         )}
 
-        {/* TAB 3: COST BREAKDOWN & RESOURCE ANALYSIS */}
+        {/* TAB 4: COST BREAKDOWN & RESOURCE ANALYSIS */}
         {sec === "breakdown" && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             {/* Direct Cost Distribution */}
@@ -1284,6 +1476,17 @@ export default function EstimationDetailPage() {
           </div>
         </div>
       )}
+
+      {/* 7. TRANQUIL ESTIMATION EDIT MODAL */}
+      <TranquilEstimationModal
+        isOpen={showEditSheetModal}
+        onClose={() => setShowEditSheetModal(false)}
+        initialData={est}
+        isEdit={true}
+        onSuccess={() => {
+          load();
+        }}
+      />
     </div>
   );
 }

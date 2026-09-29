@@ -1,18 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
-
-const I = ({ children }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{children}</svg>
-);
-const QICONS = {
-  overview: (<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></>),
-  hr: (<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>),
-  settings: (<><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" /></>),
-  logout: (<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>),
-  group: (<><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>),
-};
 
 const Icons = {
   sales: (
@@ -108,14 +98,14 @@ const TRANQUIL_GROUPS = [
           { label: "Dashboard", href: "/dashboard" },
           { label: "Enquiry", href: "/enquiries" },
           { label: "Quotation", href: "/proposals" },
-          { label: "Sales Order", href: "/projects" },
-          { label: "Goods Delivery", href: "/procurement/grns" },
-          { label: "Sales Invoice", href: "/ipc" },
-          { label: "Sales Return", href: "/changes" },
+          { label: "Sales Order", href: null },
+          { label: "Goods Delivery", href: null },
+          { label: "Sales Invoice", href: null },
+          { label: "Sales Return", href: null },
           { divider: true },
           { label: "Customer", href: "/customers" },
-          { label: "Receipts", href: "/ipc" },
-          { label: "Contra", href: "/subcontract" },
+          { label: "Receipts", href: null },
+          { label: "Contra", href: null },
         ],
       },
     ],
@@ -160,17 +150,17 @@ const TRANQUIL_GROUPS = [
         iconKey: "purchase",
         color: "#6366f1",
         items: [
-          { label: "Dashboard", href: "/dashboard" },
+          { label: "Dashboard", href: null },
           { label: "Purchase Request", href: "/procurement/indents" },
-          { label: "Request For Quote", href: "/tenders" },
+          { label: "Request For Quote", href: null },
           { label: "Purchase Order", href: "/procurement/pos" },
           { label: "Goods Receipt", href: "/procurement/grns" },
-          { label: "Purchase Invoice", href: "/procurement/pos" },
-          { label: "Purchase Return", href: "/procurement/grns" },
-          { label: "Auto Purchase Order", href: "/procurement/pos" },
+          { label: "Purchase Invoice", href: null },
+          { label: "Purchase Return", href: null },
+          { label: "Auto Purchase Order", href: null },
           { divider: true },
           { label: "Supplier", href: "/procurement/suppliers" },
-          { label: "Payments", href: "/ipc" },
+          { label: "Payments", href: null },
         ],
       },
       {
@@ -178,7 +168,7 @@ const TRANQUIL_GROUPS = [
         iconKey: "document",
         color: "#0891b2",
         items: [
-          { label: "Documents", href: "/projects" },
+          { label: "Documents", href: null },
         ],
       },
     ],
@@ -194,8 +184,8 @@ const TRANQUIL_GROUPS = [
         color: "#0284c7",
         items: [
           { label: "Item", href: "/procurement/materials" },
-          { label: "Bundle", href: "/procurement/materials" },
-          { label: "Price List", href: "/procurement/materials" },
+          { label: "Bundle", href: null },
+          { label: "Price List", href: null },
         ],
       },
       {
@@ -204,13 +194,13 @@ const TRANQUIL_GROUPS = [
         color: "#d97706",
         items: [
           { label: "Material Request", href: "/procurement/indents" },
-          { label: "Material Issue", href: "/procurement/materials" },
-          { label: "Material Return", href: "/procurement/materials" },
-          { label: "Stock Transfer Request", href: "/procurement/indents" },
-          { label: "Stock Transfer", href: "/procurement/materials" },
-          { label: "Stock Transfer Receive", href: "/procurement/materials" },
-          { label: "Stock Adjustment", href: "/procurement/materials" },
-          { label: "Stock Taking Management", href: "/procurement/materials" },
+          { label: "Material Issue", href: null },
+          { label: "Material Return", href: null },
+          { label: "Stock Transfer Request", href: null },
+          { label: "Stock Transfer", href: null },
+          { label: "Stock Transfer Receive", href: null },
+          { label: "Stock Adjustment", href: null },
+          { label: "Stock Taking Management", href: null },
         ],
       },
     ],
@@ -225,20 +215,20 @@ const TRANQUIL_GROUPS = [
         iconKey: "accounts",
         color: "#0ba360",
         items: [
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Manual Journal", href: "/dashboard" },
-          { label: "Receipt", href: "/ipc" },
-          { label: "Expense", href: "/procurement/pos" },
-          { label: "Employee Expenses", href: "/labour" },
-          { label: "Credit Note", href: "/changes" },
-          { label: "Debit Note", href: "/procurement/grns" },
-          { label: "Bank Reconcile", href: "/guarantees" },
+          { label: "Dashboard", href: null },
+          { label: "Manual Journal", href: null },
+          { label: "Receipt", href: null },
+          { label: "Expense", href: null },
+          { label: "Employee Expenses", href: null },
+          { label: "Credit Note", href: null },
+          { label: "Debit Note", href: null },
+          { label: "Bank Reconcile", href: null },
           { label: "Bank Guarantee", href: "/guarantees" },
-          { label: "Prepayment", href: "/guarantees" },
+          { label: "Prepayment", href: null },
           { divider: true },
-          { label: "Account Group", href: "/settings" },
-          { label: "Chart Of Accounts", href: "/settings" },
-          { label: "VAT Return", href: "/ipc" },
+          { label: "Account Group", href: null },
+          { label: "Chart Of Accounts", href: null },
+          { label: "VAT Return", href: null },
         ],
       },
     ],
@@ -253,11 +243,11 @@ const TRANQUIL_GROUPS = [
         iconKey: "reports",
         color: "#475569",
         items: [
-          { label: "Inventory", href: "/procurement/materials" },
-          { label: "Accounts", href: "/dashboard" },
-          { label: "Project", href: "/projects" },
+          { label: "Inventory", href: null },
+          { label: "Accounts", href: null },
+          { label: "Project", href: null },
           { label: "Tender Analytics", href: "/tenders/analytics" },
-          { label: "BOQ Margins", href: "/boqs" },
+          { label: "BOQ Margins", href: null },
         ],
       },
     ],
@@ -467,10 +457,11 @@ export default function MegaMenu({ open, onClose, onLogout, path, projects = [] 
                             if (item.href) handleNavigate(item.href);
                           }}
                           className={"mega-link" + (active ? " active" : "") + (!item.href ? " soon" : "")}
-                          title={item.label}
+                          title={item.href ? item.label : `${item.label} — ${t(lang, "mm_soon")}`}
                         >
                           <span>{item.label}</span>
                           {active && <span className="mega-link-here" />}
+                          {!item.href && <span className="mega-soon-tag">{t(lang, "mm_soon")}</span>}
                         </a>
                       );
                     })}

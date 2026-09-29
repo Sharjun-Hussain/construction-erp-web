@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import DataTable, { BiginAvatar } from "@/components/DataTable";
+import TranquilEstimationModal from "@/components/TranquilEstimationModal";
 
 const fmt = (n, d = 0) =>
   Number(n || 0).toLocaleString("en-US", {
@@ -34,58 +35,7 @@ export default function EstimationsPage() {
   const [currentView, setCurrentView] = useState("all");
 
   const [projects, setProjects] = useState([]);
-  const [showDrawer, setShowDrawer] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const initialForm = {
-    project_id: projectId || "",
-    number: "",
-    material_cost: 0,
-    labor_cost: 0,
-    equipment_cost: 0,
-    subcontract_cost: 0,
-    overhead_pct: 5,
-    contingency_pct: 5,
-    escalation_pct: 0,
-    margin_pct: 12,
-  };
-  const [form, setForm] = useState(initialForm);
-
-  // Live calculation for the drawer
-  const liveCalc = useMemo(() => {
-    const m = Number(form.material_cost || 0);
-    const l = Number(form.labor_cost || 0);
-    const e = Number(form.equipment_cost || 0);
-    const s = Number(form.subcontract_cost || 0);
-    const base = m + l + e + s;
-
-    const ohPct = Number(form.overhead_pct || 0);
-    const ohAmt = base * (ohPct / 100);
-    const direct = base + ohAmt;
-
-    const contPct = Number(form.contingency_pct || 0);
-    const contAmt = direct * (contPct / 100);
-
-    const escPct = Number(form.escalation_pct || 0);
-    const escAmt = direct * (escPct / 100);
-
-    const totalCost = direct + contAmt + escAmt;
-    const marginPct = Number(form.margin_pct || 0);
-    const sellTotal = totalCost * (1 + marginPct / 100);
-    const grossProfit = sellTotal - totalCost;
-
-    return {
-      baseDirect: base,
-      overheadAmount: ohAmt,
-      directPlusOh: direct,
-      contingencyAmount: contAmt,
-      escalationAmount: escAmt,
-      totalCost,
-      sellTotal,
-      grossProfit,
-      effectiveMargin: sellTotal > 0 ? (grossProfit / sellTotal) * 100 : 0,
-    };
-  }, [form]);
+  const [showTranquilModal, setShowTranquilModal] = useState(false);
 
   const load = (p = page, l = limit, sb = sortBy, sd = sortDir) => {
     setLoading(true);
@@ -137,43 +87,6 @@ export default function EstimationsPage() {
       load(page, limit, sortBy, sortDir);
     } catch (err) {
       setMsg(err?.response?.data?.message || "Transition failed");
-    }
-  };
-
-  // Create new estimation takeoff
-  const createEstimation = async (e) => {
-    e.preventDefault();
-    setMsg("");
-    setOk("");
-    setBusy(true);
-
-    try {
-      const payload = {
-        project_id: form.project_id,
-        material_cost: Number(form.material_cost || 0),
-        labor_cost: Number(form.labor_cost || 0),
-        equipment_cost: Number(form.equipment_cost || 0),
-        subcontract_cost: Number(form.subcontract_cost || 0),
-        overhead_pct: Number(form.overhead_pct || 0),
-        contingency_pct: Number(form.contingency_pct || 0),
-        escalation_pct: Number(form.escalation_pct || 0),
-        margin_pct: Number(form.margin_pct || 0),
-      };
-      if (form.number && form.number.trim()) {
-        payload.number = form.number.trim();
-      }
-
-      const res = await api.post("/estimations", payload);
-      setShowDrawer(false);
-      if (res?.data?.data?.id) {
-        router.push(`/estimations/${res.data.data.id}`);
-      } else {
-        load(1, limit, sortBy, sortDir);
-      }
-    } catch (err) {
-      setMsg(err?.response?.data?.message || "Failed to create estimation");
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -234,7 +147,7 @@ export default function EstimationsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <BiginAvatar
             name={x.number || "ES"}
-            subline={`Takeoff Item`}
+            subline={`Takeoff`}
             color="#0ba360"
             size={32}
           />
@@ -261,23 +174,25 @@ export default function EstimationsPage() {
                 R{x.revision}
               </span>
             </div>
-            <span style={{ fontSize: 11, color: "#64748b", marginTop: 1 }}>
-              {x.items?.length || 0} line items registered
-            </span>
+            <div style={{ fontSize: 11, color: "#64748b", marginTop: 2, display: "flex", gap: 6, alignItems: "center" }}>
+              {x.enquiry_no && <span style={{ color: "#0284c7" }}>Enq: {x.enquiry_no}</span>}
+              {x.site && <span>• Site: {x.site.split(" ")[0]}</span>}
+              <span>• {x.items?.length || 0} items</span>
+            </div>
           </div>
         </div>
       ),
     },
     {
       key: "project",
-      label: "Project & Client",
+      label: "Project & Customer",
       render: (x) => (
         <div>
           <div style={{ fontWeight: 600, color: "#0f172a" }}>
-            {x.project?.code || "—"}
+            {x.project?.name || x.project_type || "General Tender Work"}
           </div>
           <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 1 }}>
-            {x.project?.name || "General Tender Work"}
+            {x.customer_name || x.project?.client_name || x.project?.code || "—"}
           </div>
         </div>
       ),
@@ -326,7 +241,7 @@ export default function EstimationsPage() {
         return (
           <span
             style={{
-              fontWeight: 700,
+              fontWeight: 750,
               fontSize: 11.5,
               color,
               background: bg,
@@ -476,10 +391,7 @@ export default function EstimationsPage() {
           clearTimeout(window.__est);
           window.__est = setTimeout(() => load(1, limit, sortBy, sortDir), 300);
         }}
-        onAdd={() => {
-          setForm({ ...initialForm, project_id: projectFilter || "" });
-          setShowDrawer(true);
-        }}
+        onAdd={() => setShowTranquilModal(true)}
         addLabel="New Estimation"
         rightActions={
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -517,291 +429,18 @@ export default function EstimationsPage() {
         }
       />
 
-      {/* 3. PANORAMIC SLIDE-OUT DRAWER FOR NEW ESTIMATION */}
-      {showDrawer && (
-        <div className="bigin-drawer-overlay" onClick={() => setShowDrawer(false)}>
-          <div className="bigin-drawer sheet-wide" onClick={(e) => e.stopPropagation()}>
-            <div className="bigin-drawer-head">
-              <div className="bigin-drawer-title-wrap">
-                <span className="badge InProgress">Takeoff Setup</span>
-                <div>
-                  <h3 className="bigin-drawer-title">Create Cost Estimation Takeoff</h3>
-                  <span style={{ fontSize: 11.5, color: "#64748b" }}>
-                    Setup direct cost heads, risk contingencies, and commercial profit markups
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="bigin-drawer-close"
-                onClick={() => setShowDrawer(false)}
-                aria-label="Close drawer"
-              >
-                ×
-              </button>
-            </div>
-
-            <form
-              onSubmit={createEstimation}
-              style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
-            >
-              <div className="bigin-drawer-body">
-                {/* Commercial Calculator Preview Banner */}
-                <div
-                  style={{
-                    background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-                    color: "#fff",
-                    borderRadius: 10,
-                    padding: "16px 20px",
-                    marginBottom: 20,
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-                    gap: 16,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: 11, textTransform: "uppercase", color: "#94a3b8", fontWeight: 600 }}>
-                      Direct Base
-                    </div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
-                      {fmt(liveCalc.baseDirect)} SAR
-                    </div>
-                    <div style={{ fontSize: 10.5, color: "#64748b", marginTop: 2 }}>
-                      M + L + E + S
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 11, textTransform: "uppercase", color: "#94a3b8", fontWeight: 600 }}>
-                      Overhead ({form.overhead_pct}%)
-                    </div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: "#38bdf8", marginTop: 2 }}>
-                      +{fmt(liveCalc.overheadAmount)} SAR
-                    </div>
-                    <div style={{ fontSize: 10.5, color: "#64748b", marginTop: 2 }}>
-                      Direct + OH: {fmt(liveCalc.directPlusOh)}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div style={{ fontSize: 11, textTransform: "uppercase", color: "#94a3b8", fontWeight: 600 }}>
-                      Total Cost
-                    </div>
-                    <div style={{ fontSize: 17, fontWeight: 700, color: "#fbbf24", marginTop: 2 }}>
-                      {fmt(liveCalc.totalCost)} SAR
-                    </div>
-                    <div style={{ fontSize: 10.5, color: "#64748b", marginTop: 2 }}>
-                      Cont +{fmt(liveCalc.contingencyAmount)} | Esc +{fmt(liveCalc.escalationAmount)}
-                    </div>
-                  </div>
-
-                  <div style={{ borderLeft: "1px solid rgba(255,255,255,0.12)", paddingLeft: 16 }}>
-                    <div style={{ fontSize: 11, textTransform: "uppercase", color: "#86efac", fontWeight: 600 }}>
-                      Sell Total (+{form.margin_pct}%)
-                    </div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#4ade80", marginTop: 2 }}>
-                      {fmt(liveCalc.sellTotal)} SAR
-                    </div>
-                    <div style={{ fontSize: 10.5, color: "#86efac", marginTop: 2 }}>
-                      Gross Profit: {fmt(liveCalc.grossProfit)} ({liveCalc.effectiveMargin.toFixed(1)}%)
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 1: Project & Identification */}
-                <div className="bigin-form-section">
-                  <div className="bigin-form-section-title">
-                    <span className="dot" />
-                    <span>Project & Takeoff Reference</span>
-                  </div>
-                  <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
-                    <div className="bigin-form-field">
-                      <label>
-                        Assign to Project <span className="req">*</span>
-                      </label>
-                      <select
-                        className="bigin-input"
-                        value={form.project_id}
-                        onChange={(e) => setForm({ ...form, project_id: e.target.value })}
-                        required
-                      >
-                        <option value="">— Select Target Project —</option>
-                        {projects.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.code} — {p.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>
-                        Estimation Number <span style={{ color: "#94a3b8", fontWeight: 400 }}>(Leave blank for auto-numbering)</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="bigin-input"
-                        value={form.number}
-                        onChange={(e) => setForm({ ...form, number: e.target.value })}
-                        placeholder="e.g. EST-2026-0042 (Auto if blank)"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2: Direct Cost Heads */}
-                <div className="bigin-form-section" style={{ marginTop: 20 }}>
-                  <div className="bigin-form-section-title">
-                    <span className="dot" />
-                    <span>Initial Direct Cost Heads (SAR)</span>
-                  </div>
-                  <div
-                    className="bigin-form-grid"
-                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}
-                  >
-                    <div className="bigin-form-field">
-                      <label>Direct Materials (SAR)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.material_cost}
-                        onChange={(e) => setForm({ ...form, material_cost: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Direct Labour / Workforce (SAR)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.labor_cost}
-                        onChange={(e) => setForm({ ...form, labor_cost: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Plant & Heavy Equipment (SAR)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.equipment_cost}
-                        onChange={(e) => setForm({ ...form, equipment_cost: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Subcontract Packages (SAR)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.subcontract_cost}
-                        onChange={(e) => setForm({ ...form, subcontract_cost: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 11.5, color: "#64748b", marginTop: 6 }}>
-                    Note: Detailed takeoff line items can be added inside the estimation workspace after setup.
-                  </div>
-                </div>
-
-                {/* Section 3: Commercial Multipliers & Percentages */}
-                <div className="bigin-form-section" style={{ marginTop: 20 }}>
-                  <div className="bigin-form-section-title">
-                    <span className="dot" />
-                    <span>Commercial Markups & Risk Contingencies (%)</span>
-                  </div>
-                  <div
-                    className="bigin-form-grid"
-                    style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}
-                  >
-                    <div className="bigin-form-field">
-                      <label>General Overhead (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.overhead_pct}
-                        onChange={(e) => setForm({ ...form, overhead_pct: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Risk Contingency (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.contingency_pct}
-                        onChange={(e) => setForm({ ...form, contingency_pct: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Market Escalation (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.escalation_pct}
-                        onChange={(e) => setForm({ ...form, escalation_pct: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="bigin-form-field">
-                      <label>Profit Markup Margin (%)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="bigin-input"
-                        value={form.margin_pct}
-                        onChange={(e) => setForm({ ...form, margin_pct: e.target.value })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pinned Bottom Action Footer */}
-              <div className="bigin-drawer-foot">
-                <button
-                  type="button"
-                  className="btn ghost"
-                  onClick={() => setShowDrawer(false)}
-                  disabled={busy}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn"
-                  style={{
-                    background: "#0ba360",
-                    borderColor: "#0ba360",
-                    color: "#fff",
-                    fontWeight: 600,
-                  }}
-                  disabled={busy}
-                >
-                  {busy ? "Creating Takeoff..." : "✓ Create Estimation Takeoff"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* 3. TRANQUIL ERP NEW ESTIMATION SHEET MODAL */}
+      <TranquilEstimationModal
+        isOpen={showTranquilModal}
+        onClose={() => setShowTranquilModal(false)}
+        onSuccess={(created) => {
+          if (created?.id) {
+            router.push(`/estimations/${created.id}`);
+          } else {
+            load(1, limit, sortBy, sortDir);
+          }
+        }}
+      />
     </div>
   );
 }
