@@ -1149,8 +1149,10 @@ export default function Projects() {
                       <input className="input" type="date" value={form.end_date} onChange={set("end_date")} />
                     </div>
                     <div>
-                      <label className="label">Contract Duration</label>
-                      <input className="input" readOnly value={durationDays ? `${durationDays} Days (~ ${durationMonths} Months)` : "Specify Dates"} style={{ background: "#f8fafc", fontWeight: 700 }} />
+                      <label className="label">Contract Duration (Auto-calculated)</label>
+                      <div style={{ display: "flex", alignItems: "center", height: 38, padding: "0 12px", background: "#f8fafc", border: "1px solid #d4dcea", borderRadius: "var(--radius-sm)", fontSize: 13, fontWeight: 700, color: durationDays > 0 ? "#0ba360" : "#94a3b8" }}>
+                        {durationDays > 0 ? `📅 ${durationDays} Days (~ ${durationMonths} Months)` : "— Pick Start & End Dates"}
+                      </div>
                     </div>
                     <div style={{ gridColumn: "1 / -1" }}>
                       <label className="label">Site Address & GPS Location</label>
