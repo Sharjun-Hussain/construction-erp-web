@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import LookupManager from "@/components/settings/LookupManager";
@@ -10,8 +11,9 @@ import {
 } from "@/components/settings/MasterPanels";
 
 const P = (d) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
 );
+
 const ICONS = {
   building: (<><path d="M3 21h18" /><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" /><path d="M9 8h1M9 12h1M9 16h1M14 8h1M14 12h1M14 16h1" /></>),
   users: (<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></>),
@@ -55,62 +57,71 @@ const ICONS = {
 };
 
 const T = {
-  blue: { color: "#1d5bd8", bg: "#e9f0fd" }, green: { color: "#178a54", bg: "#e2f5ea" },
-  amber: { color: "#a86a12", bg: "#fdf1dc" }, violet: { color: "#6d5bd0", bg: "#efedfb" },
-  cyan: { color: "#0891b2", bg: "#e0f5fa" }, rose: { color: "#cf3d3d", bg: "#fdecec" },
-  slate: { color: "#475569", bg: "#eef2f7" }, orange: { color: "#c2570b", bg: "#fdf1e3" },
+  blue: { color: "#1d5bd8", bg: "#e9f0fd" },
+  green: { color: "#0ba360", bg: "#f0fdf4" },
+  amber: { color: "#d97706", bg: "#fffbeb" },
+  violet: { color: "#7c3aed", bg: "#f5f3ff" },
+  cyan: { color: "#0284c7", bg: "#f0f9ff" },
+  rose: { color: "#e11d48", bg: "#fff1f2" },
+  slate: { color: "#475569", bg: "#f1f5f9" },
+  orange: { color: "#ea580c", bg: "#fff7ed" },
 };
 
 const TILES = {
-  organization: { icon: "building", tint: "blue", kind: "panel", comp: "org" },
-  department: { icon: "users", tint: "violet", kind: "lookup", lookup: "department" },
-  designation: { icon: "id", tint: "cyan", kind: "lookup", lookup: "designation" },
-  roles: { icon: "shield", tint: "green", kind: "link", href: "/roles" },
-  user: { icon: "user", tint: "amber", kind: "link", href: "/users" },
-  warehouse: { icon: "warehouse", tint: "orange", kind: "lookup", lookup: "warehouse" },
-  delivery_method: { icon: "truck", tint: "orange", kind: "lookup", lookup: "delivery_method" },
-  payment_terms: { icon: "clipboard", tint: "blue", kind: "lookup", lookup: "payment_terms" },
-  charge: { icon: "receipt", tint: "rose", kind: "lookup", lookup: "charge" },
-  currency_rate: { icon: "dollar", tint: "green", kind: "panel", comp: "fx" },
-  cost_center: { icon: "target", tint: "violet", kind: "lookup", lookup: "cost_center" },
-  bank: { icon: "bank", tint: "slate", kind: "panel", comp: "banks" },
-  bank_account: { icon: "card", tint: "blue", kind: "panel", comp: "banks" },
-  import_export: { icon: "arrows", tint: "blue", kind: "panel", comp: "impex" },
-  delivery_term: { icon: "file", tint: "cyan", kind: "lookup", lookup: "delivery_term" },
-  terms_conditions: { icon: "book", tint: "violet", kind: "panel", comp: "terms" },
-  approval_settings: { icon: "sliders", tint: "amber", kind: "panel", comp: "apprset" },
-  enquiry_type: { icon: "phone", tint: "cyan", kind: "lookup", lookup: "enquiry_type" },
-  project_type: { icon: "layers", tint: "blue", kind: "lookup", lookup: "project_type" },
-  job_category: { icon: "box", tint: "amber", kind: "lookup", lookup: "job_category" },
-  job_title: { icon: "tag", tint: "slate", kind: "lookup", lookup: "job_title" },
-  labour_type: { icon: "usercheck", tint: "cyan", kind: "lookup", lookup: "labour_type" },
-  service_type: { icon: "wrench", tint: "green", kind: "lookup", lookup: "service_type" },
-  service_type_category: { icon: "grid", tint: "violet", kind: "lookup", lookup: "service_type_category" },
-  vat: { icon: "percent", tint: "amber", kind: "panel", comp: "vat" },
-  fiscal_year: { icon: "calendar", tint: "blue", kind: "panel", comp: "fiscal" },
-  entry_close: { icon: "lock", tint: "rose", kind: "panel", comp: "locks" },
-  report_pdf: { icon: "file", tint: "rose", kind: "panel", comp: "reportpdf" },
-  business_type: { icon: "briefcase", tint: "slate", kind: "lookup", lookup: "business_type" },
-  employee_rate: { icon: "trend", tint: "green", kind: "panel", comp: "emprate" },
-  site: { icon: "pin", tint: "orange", kind: "lookup", lookup: "site" },
-  expense_category: { icon: "coins", tint: "amber", kind: "lookup", lookup: "expense_category" },
-  reminder: { icon: "bell", tint: "amber", kind: "panel", comp: "reminders" },
-  email_template: { icon: "mail", tint: "cyan", kind: "panel", comp: "email" },
-  approvals: { icon: "inbox", tint: "green", kind: "panel", comp: "inbox" },
-  custom_field: { icon: "edit", tint: "violet", kind: "panel", comp: "customfields" },
-  item_category: { icon: "archive", tint: "blue", kind: "lookup", lookup: "item_category" },
-  uom: { icon: "ruler", tint: "cyan", kind: "lookup", lookup: "uom" },
-  manufacturer: { icon: "factory", tint: "slate", kind: "lookup", lookup: "manufacturer" },
-  bank_guarantee_category: { icon: "shield", tint: "green", kind: "lookup", lookup: "bank_guarantee_category" },
+  organization: { title: "Organization Profile", desc: "Company CR, VAT ID, branding, branches & address", icon: "building", tint: "blue", kind: "panel", comp: "org", tag: "System Panel" },
+  department: { title: "Departments", desc: "Organizational departments & corporate divisions", icon: "users", tint: "violet", kind: "lookup", lookup: "department", tag: "Lookup" },
+  designation: { title: "Designations", desc: "Job designations, hierarchy levels & staff titles", icon: "id", tint: "cyan", kind: "lookup", lookup: "designation", tag: "Lookup" },
+  roles: { title: "Roles & Permissions", desc: "Role-based security matrix, scopes & privileges", icon: "shield", tint: "green", kind: "link", href: "/roles", tag: "Security Matrix" },
+  user: { title: "User Directory", desc: "System operators, engineers & account credentials", icon: "user", tint: "amber", kind: "link", href: "/users", tag: "User Accounts" },
+
+  site: { title: "Project Sites & Regions", desc: "Regional operational zones & physical site locations", icon: "pin", tint: "orange", kind: "lookup", lookup: "site", tag: "Lookup" },
+  project_type: { title: "Project Types", desc: "Commercial classification (Tower, Villa, Infrastructure)", icon: "layers", tint: "blue", kind: "lookup", lookup: "project_type", tag: "Lookup" },
+  job_category: { title: "Job Categories", desc: "Contracting work categories and package divisions", icon: "box", tint: "amber", kind: "lookup", lookup: "job_category", tag: "Lookup" },
+  job_title: { title: "Job Titles", desc: "Trade and site work positions across packages", icon: "tag", tint: "slate", kind: "lookup", lookup: "job_title", tag: "Lookup" },
+  labour_type: { title: "Labour Classifications", desc: "Workforce skill tiers, trades, and direct labor heads", icon: "usercheck", tint: "cyan", kind: "lookup", lookup: "labour_type", tag: "Lookup" },
+  service_type: { title: "Service Offerings", desc: "Contracting service offerings & technical scope", icon: "wrench", tint: "green", kind: "lookup", lookup: "service_type", tag: "Lookup" },
+  service_type_category: { title: "Service Categories", desc: "Parent grouping for technical and consulting services", icon: "grid", tint: "violet", kind: "lookup", lookup: "service_type_category", tag: "Lookup" },
+  enquiry_type: { title: "Enquiry Types", desc: "Pre-bid lead channels, sources and enquiry categories", icon: "phone", tint: "cyan", kind: "lookup", lookup: "enquiry_type", tag: "Lookup" },
+
+  bank: { title: "Banking Institutions", desc: "Registered commercial banks & financial houses", icon: "bank", tint: "slate", kind: "panel", comp: "banks", tag: "Finance Panel" },
+  bank_account: { title: "Bank Accounts", desc: "Corporate IBANs, multi-currency accounts & ledgers", icon: "card", tint: "blue", kind: "panel", comp: "banks", tag: "Finance Panel" },
+  bank_guarantee_category: { title: "Bank Guarantee Categories", desc: "Bid bonds, performance guarantees & retention bonds", icon: "shield", tint: "green", kind: "lookup", lookup: "bank_guarantee_category", tag: "Lookup" },
+  vat: { title: "VAT & Tax Configurations", desc: "Saudi ZATCA compliant 15% standard rate & exemptions", icon: "percent", tint: "amber", kind: "panel", comp: "vat", tag: "Tax Configuration" },
+  fiscal_year: { title: "Fiscal Years & Periods", desc: "Financial accounting years, quarter splits & periods", icon: "calendar", tint: "blue", kind: "panel", comp: "fiscal", tag: "Accounting" },
+  currency_rate: { title: "Currency & FX Rates", desc: "Foreign exchange valuations, base SAR & multipliers", icon: "dollar", tint: "green", kind: "panel", comp: "fx", tag: "FX Rates" },
+  cost_center: { title: "Financial Cost Centers", desc: "Internal accounting cost centers & project allocations", icon: "target", tint: "violet", kind: "lookup", lookup: "cost_center", tag: "Lookup" },
+  charge: { title: "Additional Charges", desc: "Custom surcharges, fees, freight & mobilization heads", icon: "receipt", tint: "rose", kind: "lookup", lookup: "charge", tag: "Lookup" },
+  expense_category: { title: "Expense Categories", desc: "General site overheads, petty cash & travel heads", icon: "coins", tint: "amber", kind: "lookup", lookup: "expense_category", tag: "Lookup" },
+  payment_terms: { title: "Payment Terms", desc: "Net 30, milestone advance, certification & retention terms", icon: "clipboard", tint: "blue", kind: "lookup", lookup: "payment_terms", tag: "Lookup" },
+  business_type: { title: "Business Types", desc: "Client corporate classifications (LLC, Joint Venture, Semi-Gov)", icon: "briefcase", tint: "slate", kind: "lookup", lookup: "business_type", tag: "Lookup" },
+
+  delivery_method: { title: "Delivery Methods", desc: "Procurement delivery modes, site dispatch & transport", icon: "truck", tint: "orange", kind: "lookup", lookup: "delivery_method", tag: "Lookup" },
+  delivery_term: { title: "Commercial Delivery Terms", desc: "Incoterms (FOB, CIF, Ex-Works, DDP site delivery)", icon: "file", tint: "cyan", kind: "lookup", lookup: "delivery_term", tag: "Lookup" },
+  terms_conditions: { title: "Standard Terms & Clauses", desc: "Tender and proposal contractual legal terms templates", icon: "book", tint: "violet", kind: "panel", comp: "terms", tag: "Legal & Contracts" },
+  approval_settings: { title: "Workflow Approval Rules", desc: "Financial approval hierarchy, limits & delegations", icon: "sliders", tint: "amber", kind: "panel", comp: "apprset", tag: "Workflow Setup" },
+  approvals: { title: "Approvals Inbox", desc: "Pending document approvals, review queue & logs", icon: "inbox", tint: "green", kind: "panel", comp: "inbox", tag: "Approval Inbox" },
+  report_pdf: { title: "Report & PDF Layouts", desc: "Official print branding, header logos & document templates", icon: "file", tint: "rose", kind: "panel", comp: "reportpdf", tag: "Branding & Print" },
+
+  warehouse: { title: "Stores & Warehouses", desc: "Central storage yards, site laydown areas & logistics", icon: "warehouse", tint: "orange", kind: "lookup", lookup: "warehouse", tag: "Lookup" },
+  item_category: { title: "Material & Item Categories", desc: "BOQ resources, steel, concrete, finishing & equipment", icon: "archive", tint: "blue", kind: "lookup", lookup: "item_category", tag: "Lookup" },
+  uom: { title: "Units of Measurement (UOM)", desc: "Metric & imperial engineering units (m2, m3, Ton, LM, LS)", icon: "ruler", tint: "cyan", kind: "lookup", lookup: "uom", tag: "Lookup" },
+  manufacturer: { title: "Approved Manufacturers", desc: "Pre-qualified suppliers, fabricators & plant vendors", icon: "factory", tint: "slate", kind: "lookup", lookup: "manufacturer", tag: "Lookup" },
+
+  reminder: { title: "Automated Reminders", desc: "Tender bond expiry, milestone alerts & schedule triggers", icon: "bell", tint: "amber", kind: "panel", comp: "reminders", tag: "Alerts & Triggers" },
+  email_template: { title: "Email Dispatch Templates", desc: "Quotation notifications, PO transmissions & formal letters", icon: "mail", tint: "cyan", kind: "panel", comp: "email", tag: "Notifications" },
+  custom_field: { title: "Custom User Fields", desc: "Entity metadata extensions for projects, contracts & bills", icon: "edit", tint: "violet", kind: "panel", comp: "customfields", tag: "Metadata" },
+  import_export: { title: "Data Import & Export", desc: "Bulk Excel/CSV data migration & database synchronization", icon: "arrows", tint: "blue", kind: "panel", comp: "impex", tag: "Data Exchange" },
+  entry_close: { title: "Period Closing & Locks", desc: "Financial period lockdown, fiscal closures & freeze audit", icon: "lock", tint: "rose", kind: "panel", comp: "locks", tag: "Audit Lock" },
+  employee_rate: { title: "Workforce Hourly Rates", desc: "Standard billable cost rates for engineers, surveyors & trades", icon: "trend", tint: "green", kind: "panel", comp: "emprate", tag: "Costing Rates" },
 };
 
 const SECTIONS = [
-  { key: "org", tiles: ["organization", "department", "designation", "roles", "user"] },
-  { key: "project", tiles: ["site", "project_type", "job_category", "job_title", "labour_type", "service_type", "service_type_category", "enquiry_type"] },
-  { key: "finance", tiles: ["bank", "bank_account", "bank_guarantee_category", "vat", "fiscal_year", "currency_rate", "cost_center", "charge", "expense_category", "payment_terms", "business_type"] },
-  { key: "docs", tiles: ["delivery_method", "delivery_term", "terms_conditions", "approval_settings", "approvals", "report_pdf"] },
-  { key: "inventory", tiles: ["warehouse", "item_category", "uom", "manufacturer"] },
-  { key: "productivity", tiles: ["reminder", "email_template", "custom_field", "import_export", "entry_close", "employee_rate"] },
+  { key: "org", label: "Organization & Access Control", tiles: ["organization", "department", "designation", "roles", "user"] },
+  { key: "project", label: "Project & Contracting Classification", tiles: ["site", "project_type", "job_category", "job_title", "labour_type", "service_type", "service_type_category", "enquiry_type"] },
+  { key: "finance", label: "Financial Masters, Banking & Taxation", tiles: ["bank", "bank_account", "bank_guarantee_category", "vat", "fiscal_year", "currency_rate", "cost_center", "charge", "expense_category", "payment_terms", "business_type"] },
+  { key: "docs", label: "Contracts, Approvals & Reporting", tiles: ["delivery_method", "delivery_term", "terms_conditions", "approval_settings", "approvals", "report_pdf"] },
+  { key: "inventory", label: "Materials, Inventory & Resources", tiles: ["warehouse", "item_category", "uom", "manufacturer"] },
+  { key: "productivity", label: "Automation, Custom Fields & Utilities", tiles: ["reminder", "email_template", "custom_field", "import_export", "entry_close", "employee_rate"] },
 ];
 
 const PANELS = {
@@ -121,57 +132,329 @@ const PANELS = {
 };
 
 export default function SettingsHub() {
+  const router = useRouter();
   const { lang } = useAppStore();
   const [active, setActive] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (active) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [active]);
 
   const open = (key) => {
     const tile = { key, ...TILES[key] };
-    if (tile.kind === "link") { window.location.href = tile.href; return; }
+    if (tile.kind === "link") {
+      router.push(tile.href);
+      return;
+    }
     setActive(tile);
   };
+
   const Panel = active?.kind === "panel" ? PANELS[active.comp] : null;
   const tint = active ? T[active.tint] : null;
 
-  return (
-    <div>
-      <div className="page-head">
-        <div><h2>{t(lang, "settings")}</h2><p className="sub">{t(lang, "set_hub_sub")}</p></div>
-      </div>
+  // Filter sections and tiles based on active category and search
+  const filteredSections = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return SECTIONS.map((sec) => {
+      // Category filter check
+      if (activeCategory !== "all" && sec.key !== activeCategory) {
+        return null;
+      }
 
-      {SECTIONS.map((sec) => (
-        <div key={sec.key} className="set-sec">
-          <div className="set-sec-head">
-            <span className="set-sec-title">{t(lang, "set_sec_" + sec.key)}</span>
-            <span className="set-sec-count">{sec.tiles.length}</span>
+      // Tile filter check
+      const matchedTiles = sec.tiles.filter((tileKey) => {
+        const tile = TILES[tileKey];
+        if (!tile) return false;
+        if (!q) return true;
+        const haystack = `${tile.title} ${tile.desc} ${tile.tag} ${tileKey}`.toLowerCase();
+        return haystack.includes(q);
+      });
+
+      if (matchedTiles.length === 0) return null;
+
+      return {
+        ...sec,
+        tiles: matchedTiles,
+      };
+    }).filter(Boolean);
+  }, [activeCategory, search]);
+
+  const totalTilesCount = Object.keys(TILES).length;
+
+  return (
+    <div className="projects-page">
+      {/* 1. TOP COMMERCIAL KPI RIBBON */}
+      <div style={{ padding: "16px 24px 0" }}>
+        <div className="bigin-kpi-banner">
+          <div className="bigin-kpi-item primary">
+            <span className="bigin-kpi-label">Configured System Masters</span>
+            <span className="bigin-kpi-val">{totalTilesCount} Master Dictionaries</span>
+            <span className="bigin-kpi-sub">Across 6 core ERP categories</span>
           </div>
-          <div className="set-tiles">
-            {sec.tiles.map((key) => {
-              const tile = TILES[key];
-              const tc = T[tile.tint];
-              return (
-                <button key={key} type="button" className="set-tile" onClick={() => open(key)}>
-                  <span className="set-tile-icon" style={{ background: tc.bg, color: tc.color }}>{P(ICONS[tile.icon])}</span>
-                  <span className="set-tile-label">{t(lang, "set_tile_" + key)}</span>
-                  <span className="set-tile-go">→</span>
-                </button>
-              );
-            })}
+
+          <div className="bigin-kpi-item">
+            <span className="bigin-kpi-label">Tax & Financial Rules</span>
+            <span className="bigin-kpi-val" style={{ color: "#0ba360" }}>
+              15% ZATCA VAT Active
+            </span>
+            <span className="bigin-kpi-sub">SAR base currency • Multi-currency ready</span>
+          </div>
+
+          <div className="bigin-kpi-item">
+            <span className="bigin-kpi-label">Governance & Security</span>
+            <span className="bigin-kpi-val" style={{ color: "#0284c7" }}>
+              Role-Based Matrix Active
+            </span>
+            <span className="bigin-kpi-sub">Granular access scopes & workflow gates</span>
+          </div>
+
+          <div className="bigin-kpi-item">
+            <span className="bigin-kpi-label">Architecture Mode</span>
+            <span className="bigin-kpi-val" style={{ fontSize: 16 }}>
+              Multi-Branch Corporate
+            </span>
+            <span className="bigin-kpi-sub">Real-time audit log synchronization</span>
           </div>
         </div>
-      ))}
+      </div>
 
-      {active && active.kind !== "link" && (
-        <div className="drawer-ov" onClick={() => setActive(null)}>
-          <div className="drawer wide" onClick={(e) => e.stopPropagation()}>
-            <div className="drawer-h">
-              <h3 style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span className="set-drawer-icon" style={{ background: tint.bg, color: tint.color }}>{P(ICONS[active.icon])}</span>
-                {t(lang, "set_tile_" + active.key)}
-              </h3>
-              <button className="btn ghost sm" onClick={() => setActive(null)}>×</button>
+      {/* 2. CATEGORY TABS & LIVE SEARCH TOOLBAR */}
+      <div style={{ padding: "16px 24px 0" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 14,
+            background: "#ffffff",
+            padding: "10px 16px",
+            borderRadius: 12,
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(15, 23, 42, 0.03)",
+          }}
+        >
+          {/* Category Tabs */}
+          <div className="bigin-sheet-tabs" style={{ padding: 0, border: "none" }}>
+            <button
+              type="button"
+              className={`bigin-tab-pill ${activeCategory === "all" ? "active" : ""}`}
+              onClick={() => setActiveCategory("all")}
+            >
+              All Masters ({totalTilesCount})
+            </button>
+            {SECTIONS.map((sec) => (
+              <button
+                key={sec.key}
+                type="button"
+                className={`bigin-tab-pill ${activeCategory === sec.key ? "active" : ""}`}
+                onClick={() => setActiveCategory(sec.key)}
+              >
+                {sec.label.split(" ")[0]} ({sec.tiles.length})
+              </button>
+            ))}
+          </div>
+
+          {/* Search Box */}
+          <div style={{ position: "relative", minWidth: 260, flex: "0 1 320px" }}>
+            <span
+              style={{
+                position: "absolute",
+                left: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "#94a3b8",
+                pointerEvents: "none",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              className="tranquil-input"
+              style={{ paddingLeft: 34, height: 35, width: "100%", fontSize: 13 }}
+              placeholder="Search settings, VAT, banks, lookups..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  color: "#94a3b8",
+                  cursor: "pointer",
+                  fontSize: 14,
+                }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. SETTINGS SECTIONS & TILES GRID */}
+      <div style={{ padding: "20px 24px 40px" }}>
+        {filteredSections.length === 0 ? (
+          <div
+            className="card"
+            style={{
+              padding: 48,
+              textAlign: "center",
+              background: "#ffffff",
+              border: "1px dashed #cbd5e1",
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#334155" }}>
+              No master settings found matching "{search}"
             </div>
-            {active.kind === "lookup" && <LookupManager type={active.lookup} />}
-            {Panel && <Panel />}
+            <div style={{ fontSize: 12.5, color: "#94a3b8", marginTop: 4 }}>
+              Try searching with alternative keywords like "vat", "bank", "roles", "tax", "uom", or reset the filter.
+            </div>
+            <button
+              type="button"
+              className="btn sm"
+              style={{ marginTop: 16 }}
+              onClick={() => {
+                setSearch("");
+                setActiveCategory("all");
+              }}
+            >
+              Reset Search & Filters
+            </button>
+          </div>
+        ) : (
+          filteredSections.map((sec) => (
+            <div key={sec.key} className="set-sec">
+              <div className="set-sec-head">
+                <div className="set-sec-title-wrap">
+                  <span className="dot" />
+                  <span className="set-sec-title">{sec.label}</span>
+                </div>
+                <span className="set-sec-count">{sec.tiles.length} Settings</span>
+              </div>
+
+              <div className="set-tiles">
+                {sec.tiles.map((key) => {
+                  const tile = TILES[key];
+                  if (!tile) return null;
+                  const tc = T[tile.tint] || T.blue;
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className="set-tile"
+                      onClick={() => open(key)}
+                      title={`Configure ${tile.title}`}
+                    >
+                      <span className="set-tile-icon" style={{ background: tc.bg, color: tc.color }}>
+                        {P(ICONS[tile.icon])}
+                      </span>
+                      <div className="set-tile-content">
+                        <div className="set-tile-label">{tile.title}</div>
+                        <div className="set-tile-desc">{tile.desc}</div>
+                        <span className="set-tile-tag">{tile.tag}</span>
+                      </div>
+                      <span className="set-tile-go">→</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* 4. MODERN SLIDE-OUT PANORAMIC DRAWER */}
+      {active && active.kind !== "link" && (
+        <div className="bigin-drawer-overlay" onClick={() => setActive(null)}>
+          <div className="bigin-drawer sheet-wide" onClick={(e) => e.stopPropagation()}>
+            {/* Pinned Drawer Header */}
+            <div className="bigin-drawer-head">
+              <div className="bigin-drawer-title-wrap">
+                <span
+                  className="set-drawer-icon"
+                  style={{
+                    background: tint?.bg || "#f1f5f9",
+                    color: tint?.color || "#0ba360",
+                  }}
+                >
+                  {P(ICONS[active.icon])}
+                </span>
+                <div>
+                  <h3 className="bigin-drawer-title">{active.title}</h3>
+                  <span style={{ fontSize: 11.5, color: "#64748b" }}>
+                    {active.desc}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="bigin-drawer-close"
+                onClick={() => setActive(null)}
+                aria-label="Close drawer"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="bigin-drawer-body" style={{ padding: "20px 24px" }}>
+              {active.kind === "lookup" && (
+                <div>
+                  <div
+                    style={{
+                      background: "#f8fafc",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 8,
+                      padding: "10px 14px",
+                      marginBottom: 16,
+                      fontSize: 12,
+                      color: "#475569",
+                    }}
+                  >
+                    💡 <b>Enterprise Dictionary:</b> Configure unique codes, English & Arabic descriptions, and active status for <b>{active.title}</b>. Changes immediately apply across all estimation and commercial modules.
+                  </div>
+                  <LookupManager type={active.lookup} />
+                </div>
+              )}
+
+              {Panel && <Panel />}
+            </div>
+
+            {/* Pinned Bottom Drawer Footer */}
+            <div className="bigin-drawer-foot">
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => setActive(null)}
+              >
+                Close Manager
+              </button>
+            </div>
           </div>
         </div>
       )}

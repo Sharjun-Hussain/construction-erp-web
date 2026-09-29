@@ -532,7 +532,7 @@ export function ReportPdfPanel() {
 const ORG_GROUPS = ["company", "tax", "projects", "numbering", "inventory"];
 const NUMKEYS = {
   tax: ["vat_pct"], projects: ["default_retention_pct", "default_vat_pct", "default_advance_pct"],
-  numbering: ["padding", "project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest"],
+  numbering: ["padding", "project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest", "item"],
   inventory: ["default_min_qty"],
 };
 export function OrgPanel() {
@@ -548,7 +548,7 @@ export function OrgPanel() {
   }, []);
   const setG = (g, k) => (e) => {
     let v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    if ((NUMKEYS[g] || []).includes(k) && !["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest"].includes(k)) v = v === "" ? "" : Number(v);
+    if ((NUMKEYS[g] || []).includes(k) && !["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest", "item"].includes(k)) v = v === "" ? "" : Number(v);
     setCfg({ ...cfg, [g]: { ...cfg[g], [k]: v } });
   };
   const save = async () => {
@@ -557,7 +557,7 @@ export function OrgPanel() {
     for (const g of ORG_GROUPS) {
       body[g] = { ...cfg[g] };
       for (const k of (NUMKEYS[g] || [])) {
-        if (["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest"].includes(k)) continue;
+        if (["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest", "item"].includes(k)) continue;
         if (body[g][k] !== "") body[g][k] = Number(body[g][k]);
       }
     }
@@ -587,7 +587,7 @@ export function OrgPanel() {
       {tab === "company" && (<div className="form-grid"><F g="company" k="name" /><F g="company" k="name_ar" /><F g="company" k="phone" /><F g="company" k="email" /><F g="company" k="city" /><F g="company" k="commercial_registration" /><F g="company" k="tax_number" /><div style={{ gridColumn: "1 / -1" }}><F g="company" k="address" /></div></div>)}
       {tab === "tax" && (<div className="form-grid"><F g="tax" k="vat_pct" type="number" /><F g="tax" k="zatca_enabled" type="check" /></div>)}
       {tab === "projects" && (<div className="form-grid"><F g="projects" k="default_retention_pct" type="number" /><F g="projects" k="default_vat_pct" type="number" /><F g="projects" k="default_advance_pct" type="number" /><F g="projects" k="default_currency" options={["SAR", "AED", "QAR", "KWD", "BHD", "OMR", "USD"]} /><F g="projects" k="default_billing_type" options={["Monthly", "Milestone", "Percentage"]} /><F g="projects" k="default_payment_terms" /></div>)}
-      {tab === "numbering" && (<div className="form-grid">{["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest"].map((k) => (<F key={k} g="numbering" k={k} />))}<F g="numbering" k="padding" type="number" /></div>)}
+      {tab === "numbering" && (<div className="form-grid">{["project", "boq", "estimation", "tender", "ipc", "po", "grn", "indent", "quotation", "advance", "enquiry", "inspection", "proposal", "job", "labour", "equipment", "eqtransfer", "changerequest", "item"].map((k) => (<F key={k} g="numbering" k={k} />))}<F g="numbering" k="padding" type="number" /></div>)}
       {tab === "inventory" && (<div className="form-grid"><F g="inventory" k="default_min_qty" type="number" /></div>)}
       <button className="btn sm" style={{ marginTop: 12 }} onClick={save} disabled={busy}>{busy ? "..." : t(lang, "save")}</button>
     </div>

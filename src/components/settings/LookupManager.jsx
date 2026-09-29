@@ -44,25 +44,33 @@ export default function LookupManager({ type, extraFields }) {
   return (
     <div>
       <Msg msg={msg} ok={ok} />
-      <form onSubmit={submit} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-        <input className="input" style={{ maxWidth: 110 }} placeholder="Code *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required disabled={!!editId} />
-        <input className="input" style={{ flex: 1, minWidth: 150 }} placeholder={t(lang, "nameLbl") + " *"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        <input className="input" style={{ flex: 1, minWidth: 130 }} placeholder={t(lang, "nameArLbl")} value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} />
-        <input className="input" style={{ flex: 1, minWidth: 130 }} placeholder={t(lang, "descLbl")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+      <form onSubmit={submit} style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, background: "#f8fafc", padding: "14px", borderRadius: 10, border: "1px solid #e2e8f0" }}>
+        <input className="input" style={{ width: 120, fontSize: 13 }} placeholder="Code *" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} required disabled={!!editId} />
+        <input className="input" style={{ flex: "1 1 180px", fontSize: 13 }} placeholder={(t(lang, "nameLbl") || "English Name") + " *"} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        <input className="input" style={{ flex: "1 1 160px", fontSize: 13 }} placeholder={(t(lang, "nameArLbl") || "Arabic Name")} value={form.name_ar} onChange={(e) => setForm({ ...form, name_ar: e.target.value })} />
+        <input className="input" style={{ flex: "1 1 180px", fontSize: 13 }} placeholder={(t(lang, "descLbl") || "Description")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
         {extraFields}
-        <button className="btn sm" type="submit">{editId ? t(lang, "save") : "+"}</button>
-        {editId && <button className="btn ghost sm" type="button" onClick={() => { setEditId(null); setForm({ code: "", name: "", name_ar: "", description: "" }); }}>×</button>}
+        <button className="btn sm" type="submit" style={{ minWidth: 90 }}>
+          {editId ? (t(lang, "save") || "Save") : "+ Add Entry"}
+        </button>
+        {editId && (
+          <button className="btn ghost sm" type="button" onClick={() => { setEditId(null); setForm({ code: "", name: "", name_ar: "", description: "" }); }}>
+            Cancel
+          </button>
+        )}
       </form>
       <div className="table-wrap"><table className="tbl">
-        <thead><tr><th>Code</th><th>{t(lang, "nameLbl")}</th><th>{t(lang, "nameArLbl")}</th><th>{t(lang, "statusLbl")}</th><th></th></tr></thead>
+        <thead><tr><th>Code</th><th>{t(lang, "nameLbl") || "Name"}</th><th>{t(lang, "nameArLbl") || "Arabic Name"}</th><th>{t(lang, "statusLbl") || "Status"}</th><th style={{ textAlign: "right" }}>Actions</th></tr></thead>
         <tbody>{rows.map((r) => (
-          <tr key={r.id} style={{ opacity: r.is_active ? 1 : 0.5 }}>
-            <td><b>{r.code}</b></td><td>{r.name}</td><td>{r.name_ar || "—"}</td>
-            <td>{r.is_active ? <span className="badge Approved">{t(lang, "activeLbl")}</span> : <span className="badge Draft">{t(lang, "inactiveLbl")}</span>}</td>
-            <td style={{ whiteSpace: "nowrap" }}>
-              <button className="btn ghost sm" onClick={() => { setEditId(r.id); setForm({ code: r.code, name: r.name, name_ar: r.name_ar || "", description: r.description || "" }); }}>✎</button>
-              <button className="btn ghost sm" onClick={async () => { await wrap(() => api.put(`/masters/lookup/${type}/${r.id}`, { is_active: !r.is_active })); load(); }}>{r.is_active ? "⊘" : "✓"}</button>
-              <button className="btn ghost sm" onClick={async () => { if (window.confirm(t(lang, "confirmDelete"))) { await wrap(() => api.delete(`/masters/lookup/${type}/${r.id}`)); load(); } }}>×</button>
+          <tr key={r.id} style={{ opacity: r.is_active ? 1 : 0.55 }}>
+            <td><code style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, fontWeight: 700, fontSize: 12 }}>{r.code}</code></td>
+            <td style={{ fontWeight: 600 }}>{r.name}</td>
+            <td dir="rtl">{r.name_ar || "—"}</td>
+            <td>{r.is_active ? <span className="badge Approved">{t(lang, "activeLbl") || "Active"}</span> : <span className="badge Draft">{t(lang, "inactiveLbl") || "Inactive"}</span>}</td>
+            <td style={{ whiteSpace: "nowrap", textAlign: "right" }}>
+              <button className="btn ghost sm" title="Edit entry" onClick={() => { setEditId(r.id); setForm({ code: r.code, name: r.name, name_ar: r.name_ar || "", description: r.description || "" }); }}>Edit</button>
+              <button className="btn ghost sm" title={r.is_active ? "Deactivate" : "Activate"} onClick={async () => { await wrap(() => api.put(`/masters/lookup/${type}/${r.id}`, { is_active: !r.is_active })); load(); }}>{r.is_active ? "Deactivate" : "Activate"}</button>
+              <button className="btn ghost sm" title="Delete" style={{ color: "#ef4444" }} onClick={async () => { if (window.confirm(t(lang, "confirmDelete") || "Are you sure you want to delete this master entry?")) { await wrap(() => api.delete(`/masters/lookup/${type}/${r.id}`)); load(); } }}>Delete</button>
             </td>
           </tr>
         ))}
