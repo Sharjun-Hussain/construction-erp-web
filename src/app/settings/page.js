@@ -376,9 +376,11 @@ export default function SettingsHub() {
                       <div className="set-tile-content">
                         <div className="set-tile-label">{tile.title}</div>
                         <div className="set-tile-desc">{tile.desc}</div>
-                        <span className="set-tile-tag">{tile.tag}</span>
                       </div>
-                      <span className="set-tile-go">→</span>
+                      <div className="set-tile-meta">
+                        <span className="set-tile-tag">{tile.tag}</span>
+                        <span className="set-tile-go">→</span>
+                      </div>
                     </button>
                   );
                 })}
