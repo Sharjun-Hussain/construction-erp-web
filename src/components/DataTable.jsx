@@ -47,18 +47,45 @@ export function BiginCheckbox({ checked, indeterminate, onChange, title, disable
 }
 
 // Bigin Avatar Circle Component (matches Bigin's circular monogram badge e.g. "II Ilyas Ilyas")
-export function BiginAvatar({ name = "", color = "#0ba360" }) {
+export function BiginAvatar({ name = "", color = "#0ba360", size = 28, showName = true, subline = "" }) {
   const parts = String(name).trim().split(/\s+/);
   const initials = parts.length > 1
     ? (parts[0][0] + parts[1][0]).toUpperCase()
     : (parts[0] ? parts[0].slice(0, 2).toUpperCase() : "Q");
 
   return (
-    <div className="bigin-avatar-cell">
-      <span className="bigin-avatar-circle" style={{ background: color }}>
+    <div className="bigin-avatar-cell" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+      <span
+        className="bigin-avatar-circle"
+        style={{
+          background: color,
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: size <= 28 ? 11 : 12,
+        }}
+      >
         {initials}
       </span>
-      <span className="bigin-avatar-name">{name || "—"}</span>
+      {showName && (
+        <div style={{ display: "inline-flex", flexDirection: "column", minWidth: 0, textAlign: "left" }}>
+          <span className="bigin-avatar-name" style={{ fontWeight: 600, color: "var(--fg)" }}>
+            {name || "—"}
+          </span>
+          {subline ? (
+            <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 500, lineHeight: 1.2 }}>
+              {subline}
+            </span>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

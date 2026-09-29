@@ -236,11 +236,11 @@ export default function BoqDetail() {
 
         {/* Project Meta Subline */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 13, color: "var(--muted)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <BiginAvatar name={boq.project?.name || "Project"} color="#0ba360" />
-            <b style={{ color: "var(--fg)" }}>{boq.project?.name || "—"}</b>
-            {boq.project?.code && <span>({boq.project.code})</span>}
-          </div>
+          <BiginAvatar
+            name={boq.project?.name || "Project"}
+            subline={boq.project?.code ? `Code: ${boq.project.code}` : ""}
+            color="#0ba360"
+          />
           <span>•</span>
           <span>Scope: {boq.title}</span>
           {boq.title_ar && (

@@ -195,13 +195,11 @@ export default function BoqsPage() {
       key: "project",
       label: "Project",
       render: (b) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <BiginAvatar name={b.project?.name || "Project"} color="#0ba360" />
-          <div>
-            <div style={{ fontWeight: 600 }}>{b.project?.name || "—"}</div>
-            {b.project?.code && <div style={{ fontSize: 11, color: "var(--muted)" }}>{b.project.code}</div>}
-          </div>
-        </div>
+        <BiginAvatar
+          name={b.project?.name || "Project"}
+          subline={b.project?.code || ""}
+          color="#0ba360"
+        />
       ),
     },
     {

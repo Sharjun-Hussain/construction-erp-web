@@ -196,10 +196,7 @@ export default function GoodsReceiptNotesPage() {
       key: "supplier",
       label: "Supplier",
       render: (r) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <BiginAvatar name={r.supplier?.name || "Supplier"} color="#0ba360" />
-          <span style={{ fontWeight: 500 }}>{r.supplier?.name || "—"}</span>
-        </div>
+        <BiginAvatar name={r.supplier?.name || "Supplier"} color="#0ba360" />
       ),
     },
     {

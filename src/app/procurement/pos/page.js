@@ -166,13 +166,11 @@ export default function PurchaseOrdersPage() {
       key: "supplier",
       label: "Supplier / Vendor",
       render: (r) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <BiginAvatar name={r.supplier?.name || "Supplier"} color="#0ba360" />
-          <div>
-            <div style={{ fontWeight: 600 }}>{r.supplier?.name || "—"}</div>
-            {r.supplier?.code && <div style={{ fontSize: 11, color: "var(--muted)" }}>{r.supplier.code}</div>}
-          </div>
-        </div>
+        <BiginAvatar
+          name={r.supplier?.name || "Supplier"}
+          subline={r.supplier?.code || ""}
+          color="#0ba360"
+        />
       ),
     },
     {

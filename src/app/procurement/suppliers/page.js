@@ -128,13 +128,11 @@ export default function SuppliersPage() {
       label: "Supplier Name",
       sortable: true,
       render: (r) => (
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <BiginAvatar name={r.name} color="#0ba360" />
-          <div>
-            <div style={{ fontWeight: 600 }}>{r.name}</div>
-            {r.name_ar && <div style={{ fontSize: 12, color: "var(--muted)" }}>{r.name_ar}</div>}
-          </div>
-        </div>
+        <BiginAvatar
+          name={r.name}
+          subline={r.name_ar || ""}
+          color="#0ba360"
+        />
       ),
     },
     {
