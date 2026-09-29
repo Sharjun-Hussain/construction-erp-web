@@ -288,75 +288,31 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
     <button type="button" onClick={onClick} title="Quick add"
       style={{ background: "#0ba360", color: "#fff", border: "none", borderRadius: 6, width: 36, height: 38, fontSize: 18, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>+</button>
   );
-  const Sec = ({ title, children }) => (
-    <div className="bigin-form-section">
-      <div className="bigin-form-section-title"><span className="dot" /><span>{title}</span></div>
+  const Sec = ({ children }) => (
+    <div className="bigin-form-section" style={{ marginBottom: 16 }}>
       {children}
     </div>
   );
 
-  const purchase = Number(form.purchase_price || 0);
-  const sell = Number(form.sell_price || 0);
-  const marginPct = sell > 0 ? ((sell - purchase) / sell) * 100 : 0;
   const baseUom = (uoms.find((u) => u.is_base)?.uom) || form.unit || "";
 
   return (
     <div className="bigin-drawer-overlay" onClick={onClose}>
       <div className="bigin-drawer sheet-wide" onClick={(e) => e.stopPropagation()}>
-        <div className="bigin-drawer-head">
-          <div className="bigin-drawer-title-wrap">
+        <div className="bigin-drawer-head" style={{ padding: "10px 20px" }}>
+          <div className="bigin-drawer-title-wrap" style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span className={"badge " + (isEdit ? (form.is_active ? "Approved" : "Draft") : "InProgress")}>
               {isEdit ? form.code : "New Item"}
             </span>
-            <div>
-              <h3 className="bigin-drawer-title">
-                {isEdit ? (stripHtml(form.description).slice(0, 60) || form.code) : t(lang, "newItem")}
-              </h3>
-              <span style={{ fontSize: 11.5, color: "#64748b" }}>
-                {isEdit
-                  ? `${form.category || "Unclassified"} • ${form.unit} • ${form.is_active ? t(lang, "activeLbl") : t(lang, "inactiveLbl")}`
-                  : "Define identity, pricing, specifications & images"}
-              </span>
-            </div>
+            <h3 className="bigin-drawer-title" style={{ margin: 0, fontSize: 16 }}>
+              {isEdit ? (stripHtml(form.description).slice(0, 60) || form.code) : t(lang, "newItem")}
+            </h3>
           </div>
           <button type="button" className="bigin-drawer-close" onClick={onClose} aria-label="Close drawer">×</button>
         </div>
         {msg && <div className="alert err" style={{ margin: "12px 20px 0" }} onClick={() => setMsg("")}>{msg}</div>}
 
         <div className="bigin-drawer-body">
-          {/* KPI ribbon */}
-          <div className="bigin-kpi-banner" style={{ marginBottom: 18 }}>
-            <div className="bigin-kpi-item">
-              <span className="bigin-kpi-label">Item Code</span>
-              <span className="bigin-kpi-val">{form.code || "Auto"}</span>
-              <span className="bigin-kpi-sub">{form.category || "Unclassified"}</span>
-            </div>
-            <div className="bigin-kpi-item">
-              <span className="bigin-kpi-label">{t(lang, "purchasePrice")}</span>
-              <span className="bigin-kpi-val" style={{ color: "#334155" }}>{purchase.toLocaleString(undefined, { minimumFractionDigits: 2 })} SAR</span>
-              <span className="bigin-kpi-sub">Last rate: {Number(detail?.last_rate || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-            </div>
-            <div className="bigin-kpi-item primary">
-              <span className="bigin-kpi-label">{t(lang, "sellPrice")}</span>
-              <span className="bigin-kpi-val" style={{ color: "#0ba360" }}>{sell.toLocaleString(undefined, { minimumFractionDigits: 2 })} SAR</span>
-              <span className="bigin-kpi-sub">{prices.length} price list(s) • {specs.length} spec(s)</span>
-            </div>
-            <div className="bigin-kpi-item">
-              <span className="bigin-kpi-label">Margin Spread</span>
-              <span className="bigin-kpi-val" style={{ color: marginPct >= 12 ? "#0ba360" : marginPct >= 5 ? "#d97706" : "#e11d48" }}>
-                {sell > 0 ? marginPct.toFixed(1) + "%" : "—"}
-              </span>
-              <span className="bigin-kpi-sub">Sell vs purchase</span>
-            </div>
-            <div className="bigin-kpi-item">
-              <span className="bigin-kpi-label">{t(lang, "onHand")}</span>
-              <span className="bigin-kpi-val" style={{ color: "#334155" }}>
-                {isEdit ? Number(detail?.on_hand || 0).toLocaleString() : "—"}
-              </span>
-              <span className="bigin-kpi-sub">{form.unit}{isEdit && images.length > 0 ? ` • ${images.length} image(s)` : ""}</span>
-            </div>
-          </div>
-
           {/* Item identity */}
           <Sec title="Item Identity (EN / AR)">
             <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
@@ -407,7 +363,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
               <F k="mfrPartNo"><input className="bigin-input" value={form.manufacturer_part_no} onChange={(e) => set({ manufacturer_part_no: e.target.value })} /></F>
               <F k="modelNo"><input className="bigin-input" value={form.model_no} onChange={(e) => set({ model_no: e.target.value })} /></F>
               <F k="suffix"><input className="bigin-input" value={form.suffix} onChange={(e) => set({ suffix: e.target.value })} /></F>
-              <F k="category">
+              <F k="category" span>
                 <div style={{ display: "flex", gap: 6 }}>
                   <select className="bigin-input" value={form.category} onChange={(e) => set({ category: e.target.value })}>
                     <option value="">Select an Option</option>
@@ -415,7 +371,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   </select><Plus onClick={() => quickAdd("item_category", "category")} />
                 </div>
               </F>
-              <F k="manufacture">
+              <F k="manufacture" span>
                 <div style={{ display: "flex", gap: 6 }}>
                   <select className="bigin-input" value={form.manufacturer} onChange={(e) => set({ manufacturer: e.target.value })}>
                     <option value="">Select an Option</option>
@@ -423,7 +379,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   </select><Plus onClick={() => quickAdd("manufacturer", "manufacturer")} />
                 </div>
               </F>
-              <F k="vatRate">
+              <F k="vatRate" span>
                 <select className="bigin-input" value={form.vat_rate_id} onChange={(e) => set({ vat_rate_id: e.target.value })}>
                   <option value="">Select an Option</option>
                   {vatRates.map((v) => (<option key={v.id} value={v.id}>{v.name} ({v.rate}%)</option>))}
@@ -432,9 +388,9 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
             </div>
             </Sec>
             <Sec title="Specification-Grade Descriptions">
-            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr" }}>
-              <F k="itemDesc" span><input className="bigin-input" value={form.description} onChange={(e) => set({ description: e.target.value })} placeholder="Full specification-grade description" /></F>
-              <F k="itemDescAr" span><RichText value={form.description_ar} onChange={(v) => set({ description_ar: v })} rows={4} /></F>
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <F k="itemDesc"><input className="bigin-input" value={form.description} onChange={(e) => set({ description: e.target.value })} placeholder="Full specification-grade description" /></F>
+              <F k="itemDescAr"><RichText value={form.description_ar} onChange={(v) => set({ description_ar: v })} rows={4} /></F>
             </div>
             </Sec>
             <Sec title="GL Posting Accounts">

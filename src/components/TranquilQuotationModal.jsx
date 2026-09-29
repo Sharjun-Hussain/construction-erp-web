@@ -283,10 +283,32 @@ export default function TranquilQuotationModal({ isOpen, onClose, onSaved, editD
         payment_terms: paymentTerms,
       };
 
+      const qtnPayload = {
+        ...payload,
+        quotation_no: editData?.quotation_no || undefined,
+        customer_name: customerName,
+        quotation_date: quotationDate,
+        expiry_date: expiryDate,
+        total_amount: totalAmount,
+        total_vat: totalVat,
+        net_amount: calculatedNet,
+        discount_type: discountType,
+        discount_val: parseFloat(discountVal) || 0,
+        reference: reference,
+      };
+
       if (editData?.id) {
-        await api.put(`/prebid/proposals/${editData.id}`, payload);
+        try {
+          await api.put(`/quotations/${editData.id}`, qtnPayload);
+        } catch {
+          await api.put(`/prebid/proposals/${editData.id}`, payload);
+        }
       } else {
-        await api.post("/prebid/proposals", payload);
+        try {
+          await api.post("/quotations", qtnPayload);
+        } catch {
+          await api.post("/prebid/proposals", payload);
+        }
       }
 
       onSaved?.();

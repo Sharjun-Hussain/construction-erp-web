@@ -27,8 +27,6 @@ function DueDateChip({ due }) {
   return <span className="tl-chip">{diffDays}d left</span>;
 }
 
-const STATUSES = ["Draft", "Sent", "Accepted", "Rejected", "Expired"];
-
 export default function SalesQuotationPage() {
   const router = useRouter();
   const { lang } = useAppStore();
@@ -54,13 +52,34 @@ export default function SalesQuotationPage() {
     if (statusFilter) q.push("status=" + statusFilter);
 
     api
-      .get("/prebid/proposals?" + q.join("&"))
+      .get("/quotations?" + q.join("&"))
       .then((r) => {
-        setRows(r.data.data || []);
-        setTotal(r.data.meta?.total || 0);
-        setLoading(false);
+        const list = r.data.data || [];
+        if (list.length > 0) {
+          setRows(list);
+          setTotal(r.data.meta?.total || list.length);
+          setLoading(false);
+        } else {
+          api
+            .get("/prebid/proposals?" + q.join("&"))
+            .then((pr) => {
+              setRows(pr.data.data || []);
+              setTotal(pr.data.meta?.total || 0);
+              setLoading(false);
+            })
+            .catch(() => setLoading(false));
+        }
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        api
+          .get("/prebid/proposals?" + q.join("&"))
+          .then((pr) => {
+            setRows(pr.data.data || []);
+            setTotal(pr.data.meta?.total || 0);
+            setLoading(false);
+          })
+          .catch(() => setLoading(false));
+      });
   };
 
   useEffect(() => {
@@ -78,8 +97,8 @@ export default function SalesQuotationPage() {
   const pipelineRows = useMemo(() => rows.filter((r) => ["Draft", "Sent"].includes(r.status)), [rows]);
   const wonRows = useMemo(() => rows.filter((r) => r.status === "Accepted"), [rows]);
 
-  const pipelineSum = useMemo(() => pipelineRows.reduce((a, b) => a + Number(b.amount || 0), 0), [pipelineRows]);
-  const wonSum = useMemo(() => wonRows.reduce((a, b) => a + Number(b.amount || 0), 0), [wonRows]);
+  const pipelineSum = useMemo(() => pipelineRows.reduce((a, b) => a + Number(b.net_amount || b.amount || 0), 0), [pipelineRows]);
+  const wonSum = useMemo(() => wonRows.reduce((a, b) => a + Number(b.net_amount || b.amount || 0), 0), [wonRows]);
   const avgTicket = useMemo(() => (total > 0 ? (pipelineSum + wonSum) / total : 0), [total, pipelineSum, wonSum]);
 
   // Tab counts
@@ -105,7 +124,7 @@ export default function SalesQuotationPage() {
     setStatusFilter(key === "all" ? "" : key);
   };
 
-  // Open modal for editing
+  // Open modal for editing or new
   const handleEdit = (quotation) => {
     setEditingQuotation(quotation);
     setIsModalOpen(true);
@@ -124,7 +143,7 @@ export default function SalesQuotationPage() {
       sortable: true,
       render: (r) => (
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontWeight: 700, color: "#0f172a" }}>{r.number}</span>
+          <span style={{ fontWeight: 700, color: "#0f172a" }}>{r.quotation_no || r.number}</span>
           {Number(r.revision) > 0 && (
             <span
               style={{
@@ -149,10 +168,10 @@ export default function SalesQuotationPage() {
       sortable: true,
       render: (r) => (
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <BiginAvatar name={r.client_name || "Client"} />
+          <BiginAvatar name={r.customer_name || r.client_name || "Client"} />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontWeight: 650, color: "#1e293b", fontSize: 13 }}>
-              {r.client_name || "Direct Client"}
+              {r.customer_name || r.client_name || "Direct Client"}
             </span>
             {r.contact_person && (
               <span style={{ fontSize: 11, color: "#64748b" }}>Attn: {r.contact_person}</span>
@@ -168,7 +187,7 @@ export default function SalesQuotationPage() {
       render: (r) => (
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 280 }}>
           <span style={{ fontWeight: 600, color: "#334155", fontSize: 13 }} className="truncate">
-            {r.title}
+            {r.reference || r.title}
           </span>
           <span style={{ fontSize: 11, color: "#94a3b8" }}>
             {r.reference_no ? `Ref: ${r.reference_no} • ` : ""}
@@ -185,7 +204,7 @@ export default function SalesQuotationPage() {
       render: (r) => (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
           <span style={{ fontWeight: 750, color: "#0ba360", fontSize: 13.5 }}>
-            {fmt(r.amount)} SAR
+            {fmt(r.net_amount || r.amount)} SAR
           </span>
           {Boolean(r.vat_exempt) && (
             <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>VAT Exempt</span>
@@ -201,12 +220,15 @@ export default function SalesQuotationPage() {
     {
       key: "valid_until",
       label: "Valid Until",
-      render: (r) => (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <DueDateChip due={r.valid_until} />
-          <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{dstr(r.valid_until)}</span>
-        </div>
-      ),
+      render: (r) => {
+        const valDate = r.expiry_date || r.valid_until;
+        return (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <DueDateChip due={valDate} />
+            <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{dstr(valDate)}</span>
+          </div>
+        );
+      },
     },
     {
       key: "actions",
@@ -285,11 +307,11 @@ export default function SalesQuotationPage() {
           total={total}
           page={page}
           limit={limit}
-          onPageChange={(p) => {
+          onPage={(p) => {
             setPage(p);
             load(p, limit);
           }}
-          onLimitChange={(l) => {
+          onLimit={(l) => {
             setLimit(l);
             setPage(1);
             load(1, l);
@@ -297,50 +319,45 @@ export default function SalesQuotationPage() {
           selected={selected}
           onSelect={setSelected}
           searchPlaceholder="Search quotation #, client, scope, reference..."
-          onSearch={(q) => {
+          onSearchChange={(q) => {
             setSearch(q);
             setPage(1);
             const query = [`page=1`, `limit=${limit}`];
             if (q) query.push("search=" + encodeURIComponent(q));
             if (statusFilter) query.push("status=" + statusFilter);
             api
-              .get("/prebid/proposals?" + query.join("&"))
+              .get("/quotations?" + query.join("&"))
               .then((r) => {
-                setRows(r.data.data || []);
-                setTotal(r.data.meta?.total || 0);
+                const list = r.data.data || [];
+                setRows(list);
+                setTotal(r.data.meta?.total || list.length);
               })
               .catch(() => {});
           }}
           tabs={tabs}
           activeTab={currentView}
           onTabChange={handleTabChange}
-          actions={
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                type="button"
-                className="btn ghost sm"
-                onClick={() => load(page, limit)}
-                title="Refresh table"
-              >
-                ⟳ Refresh
-              </button>
-              <button
-                type="button"
-                className="btn sm"
-                onClick={handleNew}
-                style={{
-                  background: "#0ba360",
-                  borderColor: "#0ba360",
-                  color: "#ffffff",
-                  fontWeight: 650,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                }}
-              >
-                <span>+</span> New Quotation
-              </button>
-            </div>
+          onAdd={handleNew}
+          addLabel="+ Quotation"
+          rightActions={
+            <button
+              type="button"
+              className="btn sm"
+              onClick={handleNew}
+              style={{
+                background: "#0ba360",
+                borderColor: "#0ba360",
+                color: "#ffffff",
+                fontWeight: 650,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 14px",
+                borderRadius: 7,
+              }}
+            >
+              <span>+</span> New Quotation
+            </button>
           }
         />
       </div>
