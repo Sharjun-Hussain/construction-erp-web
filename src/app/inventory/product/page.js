@@ -172,175 +172,281 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
     } catch (err) { setMsg(err?.response?.data?.message || "Failed"); }
   };
 
-  const L = ({ k, children, span }) => (
-    <div style={span ? { gridColumn: "1 / -1" } : undefined}>
-      <label className="label">{t(lang, k)}</label>
+  const F = ({ k, children, span, hint }) => (
+    <div className="bigin-form-field" style={span ? { gridColumn: "1 / -1" } : undefined}>
+      <label>{t(lang, k)}</label>
       {children}
+      {hint && <span style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{hint}</span>}
     </div>
   );
   const Plus = ({ onClick }) => (
     <button type="button" onClick={onClick} title="Quick add"
-      style={{ background: "#f5820b", color: "#fff", border: "none", borderRadius: 6, width: 34, height: 38, fontSize: 18, cursor: "pointer", flexShrink: 0 }}>+</button>
+      style={{ background: "#0ba360", color: "#fff", border: "none", borderRadius: 6, width: 36, height: 38, fontSize: 18, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>+</button>
+  );
+  const Sec = ({ title, children }) => (
+    <div className="bigin-form-section">
+      <div className="bigin-form-section-title"><span className="dot" /><span>{title}</span></div>
+      {children}
+    </div>
   );
 
+  const purchase = Number(form.purchase_price || 0);
+  const sell = Number(form.sell_price || 0);
+  const marginPct = sell > 0 ? ((sell - purchase) / sell) * 100 : 0;
+
   return (
-    <div className="drawer-ov" onClick={onClose}>
-      <div className="drawer sheet-wide item-drawer" onClick={(e) => e.stopPropagation()}>
-        <div className="drawer-h item-drawer-h">
-          <h3>{isEdit ? form.code + " — " + stripHtml(form.description).slice(0, 50) : t(lang, "newItem")}</h3>
-          <button className="btn ghost sm" onClick={onClose}>×</button>
+    <div className="bigin-drawer-overlay" onClick={onClose}>
+      <div className="bigin-drawer sheet-wide" onClick={(e) => e.stopPropagation()}>
+        <div className="bigin-drawer-head">
+          <div className="bigin-drawer-title-wrap">
+            <span className={"badge " + (isEdit ? (form.is_active ? "Approved" : "Draft") : "InProgress")}>
+              {isEdit ? form.code : "New Item"}
+            </span>
+            <div>
+              <h3 className="bigin-drawer-title">
+                {isEdit ? (stripHtml(form.description).slice(0, 60) || form.code) : t(lang, "newItem")}
+              </h3>
+              <span style={{ fontSize: 11.5, color: "#64748b" }}>
+                {isEdit
+                  ? `${form.category || "Unclassified"} • ${form.unit} • ${form.is_active ? t(lang, "activeLbl") : t(lang, "inactiveLbl")}`
+                  : "Define identity, pricing, specifications & images"}
+              </span>
+            </div>
+          </div>
+          <button type="button" className="bigin-drawer-close" onClick={onClose} aria-label="Close drawer">×</button>
         </div>
-        {msg && <div className="alert err" style={{ margin: "0 20px 10px" }}>{msg}</div>}
+        {msg && <div className="alert err" style={{ margin: "12px 20px 0" }} onClick={() => setMsg("")}>{msg}</div>}
 
-        {/* header: names */}
-        <div className="item-names">
-          <div><label className="label">{t(lang, "itemName")} *</label>
-            <input className="input" value={form.description} placeholder="e.g. Portland Cement Type I (50 KG Bag)"
-              onChange={(e) => set({ description: e.target.value })} /></div>
-          <div><label className="label">{t(lang, "itemNameAr")}</label>
-            <input className="input" dir="rtl" value={form.name_ar} onChange={(e) => set({ name_ar: e.target.value })} /></div>
-        </div>
+        <div className="bigin-drawer-body">
+          {/* KPI ribbon */}
+          <div className="bigin-kpi-banner" style={{ marginBottom: 18 }}>
+            <div className="bigin-kpi-item">
+              <span className="bigin-kpi-label">Item Code</span>
+              <span className="bigin-kpi-val">{form.code || "Auto"}</span>
+              <span className="bigin-kpi-sub">{form.category || "Unclassified"}</span>
+            </div>
+            <div className="bigin-kpi-item">
+              <span className="bigin-kpi-label">{t(lang, "purchasePrice")}</span>
+              <span className="bigin-kpi-val" style={{ color: "#334155" }}>{purchase.toLocaleString(undefined, { minimumFractionDigits: 2 })} SAR</span>
+              <span className="bigin-kpi-sub">Last rate: {Number(detail?.last_rate || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="bigin-kpi-item primary">
+              <span className="bigin-kpi-label">{t(lang, "sellPrice")}</span>
+              <span className="bigin-kpi-val" style={{ color: "#0ba360" }}>{sell.toLocaleString(undefined, { minimumFractionDigits: 2 })} SAR</span>
+              <span className="bigin-kpi-sub">{prices.length} price list(s) • {specs.length} spec(s)</span>
+            </div>
+            <div className="bigin-kpi-item">
+              <span className="bigin-kpi-label">Margin Spread</span>
+              <span className="bigin-kpi-val" style={{ color: marginPct >= 12 ? "#0ba360" : marginPct >= 5 ? "#d97706" : "#e11d48" }}>
+                {sell > 0 ? marginPct.toFixed(1) + "%" : "—"}
+              </span>
+              <span className="bigin-kpi-sub">Sell vs purchase</span>
+            </div>
+            <div className="bigin-kpi-item">
+              <span className="bigin-kpi-label">{t(lang, "onHand")}</span>
+              <span className="bigin-kpi-val" style={{ color: "#334155" }}>
+                {isEdit ? Number(detail?.on_hand || 0).toLocaleString() : "—"}
+              </span>
+              <span className="bigin-kpi-sub">{form.unit}{isEdit && images.length > 0 ? ` • ${images.length} image(s)` : ""}</span>
+            </div>
+          </div>
 
-        {/* flags */}
-        <div className="item-flags">
-          {["is_service|serviceItem", "is_taxable|taxable", "is_sellable|sellable", "is_purchasable|purchasable"].map((s) => {
-            const [k, lk] = s.split("|");
-            return (
-              <label key={k} className="item-flag">
-                <input type="checkbox" checked={!!form[k]} onChange={(e) => set({ [k]: e.target.checked })} />
-                <span>{t(lang, lk)}</span>
-              </label>
-            );
-          })}
-        </div>
+          {/* Item identity */}
+          <Sec title="Item Identity (EN / AR)">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="bigin-form-field">
+                <label>{t(lang, "itemName")} <span className="req">*</span></label>
+                <input className="bigin-input" value={form.description} placeholder="e.g. Portland Cement Type I (50 KG Bag)"
+                  onChange={(e) => set({ description: e.target.value })} />
+              </div>
+              <div className="bigin-form-field">
+                <label>{t(lang, "itemNameAr")}</label>
+                <input className="bigin-input" dir="rtl" value={form.name_ar} onChange={(e) => set({ name_ar: e.target.value })} />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+              {[["is_service", "serviceItem"], ["is_taxable", "taxable"], ["is_sellable", "sellable"], ["is_purchasable", "purchasable"]].map(([k, lk]) => (
+                <label key={k} style={{
+                  display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 700,
+                  padding: "6px 12px", borderRadius: 999, cursor: "pointer",
+                  background: form[k] ? "#f0fdf4" : "#f8fafc",
+                  border: form[k] ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
+                  color: form[k] ? "#166534" : "#64748b",
+                }}>
+                  <input type="checkbox" checked={!!form[k]} onChange={(e) => set({ [k]: e.target.checked })} style={{ accentColor: "#0ba360" }} />
+                  <span>{t(lang, lk)}</span>
+                </label>
+              ))}
+            </div>
+          </Sec>
 
-        {/* tabs */}
-        <div className="tabs item-tabs">
-          {TABS.map((tb) => (
-            <button key={tb} type="button" className={tab === tb ? "on" : ""} onClick={() => setTab(tb)}>{t(lang, "itemTab_" + tb)}</button>
-          ))}
-        </div>
+          {/* Sheet tabs */}
+          <div className="bigin-sheet-tabs" style={{ marginTop: 18 }}>
+            {TABS.map((tb) => (
+              <button key={tb} type="button" className={`bigin-tab-pill ${tab === tb ? "active" : ""}`} onClick={() => setTab(tb)}>
+                {t(lang, "itemTab_" + tb)}
+                {tb === "prices" && prices.length > 0 ? ` (${prices.length})` : ""}
+                {tb === "specs" && specs.length > 0 ? ` (${specs.length})` : ""}
+                {tb === "images" && images.length > 0 ? ` (${images.length})` : ""}
+              </button>
+            ))}
+          </div>
 
-        <div className="item-body">
+          <div style={{ marginTop: 16 }}>
           {tab === "general" && (
-            <div className="form-grid item-grid">
-              <L k="itemCode"><input className="input" placeholder="Auto (ITM-…)" value={form.code} onChange={(e) => set({ code: e.target.value })} /></L>
-              <L k="mfrPartNo"><input className="input" value={form.manufacturer_part_no} onChange={(e) => set({ manufacturer_part_no: e.target.value })} /></L>
-              <L k="modelNo"><input className="input" value={form.model_no} onChange={(e) => set({ model_no: e.target.value })} /></L>
-              <L k="suffix"><input className="input" value={form.suffix} onChange={(e) => set({ suffix: e.target.value })} /></L>
-              <L k="category">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <Sec title="Coding & Classification">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              <F k="itemCode"><input className="bigin-input" placeholder="Auto (ITM-…)" value={form.code} onChange={(e) => set({ code: e.target.value })} /></F>
+              <F k="mfrPartNo"><input className="bigin-input" value={form.manufacturer_part_no} onChange={(e) => set({ manufacturer_part_no: e.target.value })} /></F>
+              <F k="modelNo"><input className="bigin-input" value={form.model_no} onChange={(e) => set({ model_no: e.target.value })} /></F>
+              <F k="suffix"><input className="bigin-input" value={form.suffix} onChange={(e) => set({ suffix: e.target.value })} /></F>
+              <F k="category">
                 <div style={{ display: "flex", gap: 6 }}>
-                  <select className="select" value={form.category} onChange={(e) => set({ category: e.target.value })}>
+                  <select className="bigin-input" value={form.category} onChange={(e) => set({ category: e.target.value })}>
                     <option value="">Select an Option</option>
                     {(lookups.item_category || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
                   </select><Plus onClick={() => quickAdd("item_category", "category")} />
                 </div>
-              </L>
-              <L k="manufacture">
+              </F>
+              <F k="manufacture">
                 <div style={{ display: "flex", gap: 6 }}>
-                  <select className="select" value={form.manufacturer} onChange={(e) => set({ manufacturer: e.target.value })}>
+                  <select className="bigin-input" value={form.manufacturer} onChange={(e) => set({ manufacturer: e.target.value })}>
                     <option value="">Select an Option</option>
                     {(lookups.manufacturer || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
                   </select><Plus onClick={() => quickAdd("manufacturer", "manufacturer")} />
                 </div>
-              </L>
-              <L k="vatRate">
-                <select className="select" value={form.vat_rate_id} onChange={(e) => set({ vat_rate_id: e.target.value })}>
+              </F>
+              <F k="vatRate">
+                <select className="bigin-input" value={form.vat_rate_id} onChange={(e) => set({ vat_rate_id: e.target.value })}>
                   <option value="">Select an Option</option>
                   {vatRates.map((v) => (<option key={v.id} value={v.id}>{v.name} ({v.rate}%)</option>))}
                 </select>
-              </L>
-              <div />
-              <L k="itemDesc" span><input className="input" value={form.description} onChange={(e) => set({ description: e.target.value })} placeholder="Full specification-grade description" /></L>
-              <L k="itemDescAr" span><RichText value={form.description_ar} onChange={(v) => set({ description_ar: v })} rows={4} /></L>
-              <div className="item-accounts" style={{ gridColumn: "1 / -1" }}>
-                <L k="invAccount"><select className="select" value={form.inventory_account} onChange={(e) => set({ inventory_account: e.target.value })}>{ACCOUNTS_INV.map((x) => (<option key={x}>{x}</option>))}</select></L>
-                <L k="incomeAccount"><select className="select" value={form.income_account} onChange={(e) => set({ income_account: e.target.value })}>{ACCOUNTS_INC.map((x) => (<option key={x}>{x}</option>))}</select></L>
-                <L k="expenseAccount"><select className="select" value={form.expense_account} onChange={(e) => set({ expense_account: e.target.value })}>{ACCOUNTS_EXP.map((x) => (<option key={x}>{x}</option>))}</select></L>
-              </div>
-              <L k="supplier">
-                <select className="select" value={form.preferred_supplier_id} onChange={(e) => set({ preferred_supplier_id: e.target.value })}>
+              </F>
+            </div>
+            </Sec>
+            <Sec title="Specification-Grade Descriptions">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr" }}>
+              <F k="itemDesc" span><input className="bigin-input" value={form.description} onChange={(e) => set({ description: e.target.value })} placeholder="Full specification-grade description" /></F>
+              <F k="itemDescAr" span><RichText value={form.description_ar} onChange={(v) => set({ description_ar: v })} rows={4} /></F>
+            </div>
+            </Sec>
+            <Sec title="GL Posting Accounts">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, padding: 12 }}>
+                <F k="invAccount"><select className="bigin-input" value={form.inventory_account} onChange={(e) => set({ inventory_account: e.target.value })}>{ACCOUNTS_INV.map((x) => (<option key={x}>{x}</option>))}</select></F>
+                <F k="incomeAccount"><select className="bigin-input" value={form.income_account} onChange={(e) => set({ income_account: e.target.value })}>{ACCOUNTS_INC.map((x) => (<option key={x}>{x}</option>))}</select></F>
+                <F k="expenseAccount"><select className="bigin-input" value={form.expense_account} onChange={(e) => set({ expense_account: e.target.value })}>{ACCOUNTS_EXP.map((x) => (<option key={x}>{x}</option>))}</select></F>
+            </div>
+            </Sec>
+            <Sec title="Commercial Terms">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              <F k="supplier">
+                <select className="bigin-input" value={form.preferred_supplier_id} onChange={(e) => set({ preferred_supplier_id: e.target.value })}>
                   <option value="">—</option>
                   {suppliers.map((s) => (<option key={s.id} value={s.id}>{s.code} — {s.name}</option>))}
                 </select>
-              </L>
-              <L k="discountPct"><input className="input" type="number" step="0.01" value={form.discount_pct} onChange={(e) => set({ discount_pct: e.target.value })} /></L>
-              <L k="availability">
+              </F>
+              <F k="discountPct"><input className="bigin-input" type="number" step="0.01" value={form.discount_pct} onChange={(e) => set({ discount_pct: e.target.value })} /></F>
+              <F k="availability">
                 <div style={{ display: "flex", gap: 6 }}>
-                  <input className="input" type="number" value={form.lead_time_days} onChange={(e) => set({ lead_time_days: e.target.value })} />
-                  <select className="select" style={{ maxWidth: 110 }} value={form.lead_time_unit} onChange={(e) => set({ lead_time_unit: e.target.value })}>{["Days", "Weeks", "Months"].map((x) => (<option key={x}>{x}</option>))}</select>
+                  <input className="bigin-input" type="number" value={form.lead_time_days} onChange={(e) => set({ lead_time_days: e.target.value })} />
+                  <select className="bigin-input" style={{ maxWidth: 110 }} value={form.lead_time_unit} onChange={(e) => set({ lead_time_unit: e.target.value })}>{["Days", "Weeks", "Months"].map((x) => (<option key={x}>{x}</option>))}</select>
                 </div>
-              </L>
-              <L k="department">
-                <select className="select" value={form.department} onChange={(e) => set({ department: e.target.value })}>
+              </F>
+              <F k="department">
+                <select className="bigin-input" value={form.department} onChange={(e) => set({ department: e.target.value })}>
                   <option value="">—</option>
                   {(lookups.department || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
                 </select>
-              </L>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <label className="item-flag">
-                  <input type="checkbox" checked={!!form.has_tolerance} onChange={(e) => set({ has_tolerance: e.target.checked })} />
+              </F>
+              <div className="bigin-form-field" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                  <input type="checkbox" checked={!!form.has_tolerance} onChange={(e) => set({ has_tolerance: e.target.checked })} style={{ accentColor: "#0ba360", width: 15, height: 15 }} />
                   <span>{t(lang, "tolerance")}</span>
                   {form.has_tolerance && (
-                    <input className="input" style={{ maxWidth: 110, marginInlineStart: 8 }} type="number" step="0.01" value={form.tolerance_pct} onChange={(e) => set({ tolerance_pct: e.target.value })} placeholder="%" />
+                    <input className="bigin-input" style={{ maxWidth: 110 }} type="number" step="0.01" value={form.tolerance_pct} onChange={(e) => set({ tolerance_pct: e.target.value })} placeholder="%" />
                   )}
                 </label>
               </div>
             </div>
+            </Sec>
+            </div>
           )}
 
           {tab === "details" && (
-            <div className="form-grid item-grid">
-              <L k="unit">
-                <select className="select" value={form.unit} onChange={(e) => set({ unit: e.target.value })}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <Sec title="Units & Identification">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              <F k="unit">
+                <select className="bigin-input" value={form.unit} onChange={(e) => set({ unit: e.target.value })}>
                   {(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code} — {x.name}</option>))}
                 </select>
-              </L>
-              <L k="purchaseUnit"><input className="input" value={form.purchase_unit} onChange={(e) => set({ purchase_unit: e.target.value })} placeholder={form.unit} /></L>
-              <L k="convFactor"><input className="input" type="number" step="0.0001" value={form.conversion_factor} onChange={(e) => set({ conversion_factor: e.target.value })} /></L>
-              <L k="barcode"><input className="input" value={form.barcode} onChange={(e) => set({ barcode: e.target.value })} /></L>
-              <L k="brand"><input className="input" value={form.brand} onChange={(e) => set({ brand: e.target.value })} /></L>
-              <L k="origin"><input className="input" value={form.country_of_origin} onChange={(e) => set({ country_of_origin: e.target.value })} /></L>
-              <L k="weightKg"><input className="input" type="number" step="0.001" value={form.weight_kg} onChange={(e) => set({ weight_kg: e.target.value })} /></L>
-              <L k="dimensions">
+              </F>
+              <F k="purchaseUnit"><input className="bigin-input" value={form.purchase_unit} onChange={(e) => set({ purchase_unit: e.target.value })} placeholder={form.unit} /></F>
+              <F k="convFactor"><input className="bigin-input" type="number" step="0.0001" value={form.conversion_factor} onChange={(e) => set({ conversion_factor: e.target.value })} /></F>
+              <F k="barcode"><input className="bigin-input" value={form.barcode} onChange={(e) => set({ barcode: e.target.value })} /></F>
+              <F k="brand"><input className="bigin-input" value={form.brand} onChange={(e) => set({ brand: e.target.value })} /></F>
+              <F k="origin"><input className="bigin-input" value={form.country_of_origin} onChange={(e) => set({ country_of_origin: e.target.value })} /></F>
+            </div>
+            </Sec>
+            <Sec title="Physical Attributes">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              <F k="weightKg"><input className="bigin-input" type="number" step="0.001" value={form.weight_kg} onChange={(e) => set({ weight_kg: e.target.value })} /></F>
+              <F k="dimensions">
                 <div style={{ display: "flex", gap: 6 }}>
-                  <input className="input" type="number" step="0.001" placeholder="L" value={form.length_m} onChange={(e) => set({ length_m: e.target.value })} />
-                  <input className="input" type="number" step="0.001" placeholder="W" value={form.width_m} onChange={(e) => set({ width_m: e.target.value })} />
-                  <input className="input" type="number" step="0.001" placeholder="H" value={form.height_m} onChange={(e) => set({ height_m: e.target.value })} />
+                  <input className="bigin-input" type="number" step="0.001" placeholder="L" value={form.length_m} onChange={(e) => set({ length_m: e.target.value })} />
+                  <input className="bigin-input" type="number" step="0.001" placeholder="W" value={form.width_m} onChange={(e) => set({ width_m: e.target.value })} />
+                  <input className="bigin-input" type="number" step="0.001" placeholder="H" value={form.height_m} onChange={(e) => set({ height_m: e.target.value })} />
                 </div>
-              </L>
-              <L k="minQty"><input className="input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} /></L>
-              <L k="maxQty"><input className="input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} /></L>
-              <L k="reorderQty"><input className="input" type="number" step="0.001" value={form.reorder_qty} onChange={(e) => set({ reorder_qty: e.target.value })} /></L>
-              <L k="shelfLife"><input className="input" type="number" value={form.shelf_life_days} onChange={(e) => set({ shelf_life_days: e.target.value })} /></L>
-              <div style={{ gridColumn: "1 / -1", display: "flex", gap: 18, flexWrap: "wrap" }}>
+              </F>
+            </div>
+            </Sec>
+            <Sec title="Stock Controls & Tracking">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
+              <F k="minQty"><input className="bigin-input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} /></F>
+              <F k="maxQty"><input className="bigin-input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} /></F>
+              <F k="reorderQty"><input className="bigin-input" type="number" step="0.001" value={form.reorder_qty} onChange={(e) => set({ reorder_qty: e.target.value })} /></F>
+              <F k="shelfLife"><input className="bigin-input" type="number" value={form.shelf_life_days} onChange={(e) => set({ shelf_life_days: e.target.value })} /></F>
+              <div className="bigin-form-field" style={{ gridColumn: "1 / -1" }}>
+                <div style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
                 {[["batch_tracking", "batchTrack"], ["serial_tracking", "serialTrack"], ["expiry_tracking", "expiryTrack"]].map(([k, lk]) => (
-                  <label key={k} className="item-flag"><input type="checkbox" checked={!!form[k]} onChange={(e) => set({ [k]: e.target.checked })} /><span>{t(lang, lk)}</span></label>
+                  <label key={k} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+                    <input type="checkbox" checked={!!form[k]} onChange={(e) => set({ [k]: e.target.checked })} style={{ accentColor: "#0ba360", width: 15, height: 15 }} />
+                    <span>{t(lang, lk)}</span>
+                  </label>
                 ))}
+                </div>
               </div>
               {detail && (
-                <div style={{ gridColumn: "1 / -1" }} className="card">
-                  <div className="label">Stock on hand</div>
-                  <b style={{ fontSize: 18 }}>{Number(detail.on_hand || 0).toLocaleString()} {form.unit}</b>
-                  <span className="muted" style={{ marginInlineStart: 10 }}>Last purchase rate: {Number(detail.last_rate || 0).toLocaleString()}</span>
+                <div className="bigin-form-field" style={{ gridColumn: "1 / -1" }}>
+                  <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, padding: 12, display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap" }}>
+                    <div><div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>STOCK ON HAND</div>
+                    <b style={{ fontSize: 18 }}>{Number(detail.on_hand || 0).toLocaleString()} {form.unit}</b></div>
+                    <div><div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>LAST PURCHASE RATE</div>
+                    <b style={{ fontSize: 15 }}>{Number(detail.last_rate || 0).toLocaleString()} SAR</b></div>
+                  </div>
                 </div>
               )}
+            </div>
+            </Sec>
             </div>
           )}
 
           {tab === "prices" && (
-            <div>
-              <div className="form-grid item-grid" style={{ marginBottom: 12 }}>
-                <L k="purchasePrice"><input className="input" type="number" step="0.01" value={form.purchase_price} onChange={(e) => set({ purchase_price: e.target.value })} /></L>
-                <L k="sellPrice"><input className="input" type="number" step="0.01" value={form.sell_price} onChange={(e) => set({ sell_price: e.target.value })} /></L>
-              </div>
-              <div className="label" style={{ marginBottom: 6 }}>{t(lang, "priceLists")}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <Sec title="Base Rates">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                <F k="purchasePrice"><input className="bigin-input" type="number" step="0.01" value={form.purchase_price} onChange={(e) => set({ purchase_price: e.target.value })} /></F>
+                <F k="sellPrice"><input className="bigin-input" type="number" step="0.01" value={form.sell_price} onChange={(e) => set({ sell_price: e.target.value })} /></F>
+            </div>
+            </Sec>
+            <Sec title={t(lang, "priceLists")}>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-                <input className="input" style={{ maxWidth: 150 }} placeholder="Price list" value={newPrice.price_list} onChange={(e) => setNewPrice({ ...newPrice, price_list: e.target.value })} />
-                <select className="select" style={{ maxWidth: 100 }} value={newPrice.currency} onChange={(e) => setNewPrice({ ...newPrice, currency: e.target.value })}>{["SAR", "USD", "EUR", "AED"].map((x) => (<option key={x}>{x}</option>))}</select>
-                <input className="input" style={{ maxWidth: 130 }} type="number" step="0.01" placeholder="Unit price *" value={newPrice.unit_price} onChange={(e) => setNewPrice({ ...newPrice, unit_price: e.target.value })} />
-                <input className="input" style={{ maxWidth: 110 }} type="number" step="0.001" placeholder="Min qty" value={newPrice.min_qty} onChange={(e) => setNewPrice({ ...newPrice, min_qty: e.target.value })} />
-                <button type="button" className="btn sm" onClick={() => {
+                <input className="bigin-input" style={{ maxWidth: 150 }} placeholder="Price list" value={newPrice.price_list} onChange={(e) => setNewPrice({ ...newPrice, price_list: e.target.value })} />
+                <select className="bigin-input" style={{ maxWidth: 100 }} value={newPrice.currency} onChange={(e) => setNewPrice({ ...newPrice, currency: e.target.value })}>{["SAR", "USD", "EUR", "AED"].map((x) => (<option key={x}>{x}</option>))}</select>
+                <input className="bigin-input" style={{ maxWidth: 130 }} type="number" step="0.01" placeholder="Unit price *" value={newPrice.unit_price} onChange={(e) => setNewPrice({ ...newPrice, unit_price: e.target.value })} />
+                <input className="bigin-input" style={{ maxWidth: 110 }} type="number" step="0.001" placeholder="Min qty" value={newPrice.min_qty} onChange={(e) => setNewPrice({ ...newPrice, min_qty: e.target.value })} />
+                <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={() => {
                   if (!newPrice.unit_price) return;
                   if (isEdit) addPriceApi();
                   else setPrices([...prices, { ...newPrice, unit_price: Number(newPrice.unit_price), min_qty: Number(newPrice.min_qty || 1), id: "tmp" + Date.now() }]);
@@ -348,25 +454,26 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                 }}>+</button>
               </div>
               <div className="table-wrap"><table className="tbl">
-                <thead><tr><th>Price list</th><th>Currency</th><th>Unit price</th><th>Min qty</th><th></th></tr></thead>
+                <thead><tr><th>Price list</th><th>Currency</th><th style={{ textAlign: "right" }}>Unit price</th><th style={{ textAlign: "right" }}>Min qty</th><th></th></tr></thead>
                 <tbody>{prices.map((p) => (
-                  <tr key={p.id}><td>{p.price_list}</td><td>{p.currency}</td><td>{Number(p.unit_price).toLocaleString()}</td><td>{p.min_qty}</td>
-                    <td><button type="button" className="btn ghost sm" onClick={() => {
+                  <tr key={p.id}><td style={{ fontWeight: 600 }}>{p.price_list}</td><td>{p.currency}</td><td style={{ textAlign: "right", fontWeight: 700 }}>{Number(p.unit_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td><td style={{ textAlign: "right" }}>{p.min_qty}</td>
+                    <td style={{ textAlign: "center" }}><button type="button" className="btn ghost sm" style={{ padding: "2px 6px", fontSize: 11, color: "#e11d48" }} onClick={() => {
                       if (isEdit && !String(p.id).startsWith("tmp")) delPriceApi(p.id);
                       else setPrices(prices.filter((x) => x.id !== p.id));
                     }}>×</button></td></tr>
                 ))}
                 {!prices.length && <tr><td colSpan={5} className="muted" style={{ textAlign: "center", padding: 16 }}>—</td></tr>}
                 </tbody></table></div>
+            </Sec>
             </div>
           )}
 
           {tab === "specs" && (
-            <div>
+            <Sec title="Technical Attributes">
               <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-                <input className="input" style={{ maxWidth: 220 }} placeholder="Attribute (e.g. Compressive Strength)" value={newSpec.attr_name} onChange={(e) => setNewSpec({ ...newSpec, attr_name: e.target.value })} />
-                <input className="input" style={{ flex: 1 }} placeholder="Value (e.g. 42.5 MPa)" value={newSpec.attr_value} onChange={(e) => setNewSpec({ ...newSpec, attr_value: e.target.value })} />
-                <button type="button" className="btn sm" onClick={() => {
+                <input className="bigin-input" style={{ maxWidth: 220 }} placeholder="Attribute (e.g. Compressive Strength)" value={newSpec.attr_name} onChange={(e) => setNewSpec({ ...newSpec, attr_name: e.target.value })} />
+                <input className="bigin-input" style={{ flex: 1 }} placeholder="Value (e.g. 42.5 MPa)" value={newSpec.attr_value} onChange={(e) => setNewSpec({ ...newSpec, attr_value: e.target.value })} />
+                <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={() => {
                   if (!newSpec.attr_name) return;
                   if (isEdit) addSpecApi();
                   else { setSpecs([...specs, { ...newSpec, id: "tmp" + Date.now() }]); setNewSpec({ attr_name: "", attr_value: "" }); }
@@ -375,23 +482,23 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
               <div className="table-wrap"><table className="tbl">
                 <thead><tr><th style={{ width: 240 }}>Attribute</th><th>Value</th><th style={{ width: 60 }}></th></tr></thead>
                 <tbody>{specs.map((s) => (
-                  <tr key={s.id}><td><b>{s.attr_name}</b></td><td>{s.attr_value || "—"}</td>
-                    <td><button type="button" className="btn ghost sm" onClick={() => {
+                  <tr key={s.id}><td style={{ fontWeight: 600, color: "#0f172a" }}>{s.attr_name}</td><td>{s.attr_value || "—"}</td>
+                    <td style={{ textAlign: "center" }}><button type="button" className="btn ghost sm" style={{ padding: "2px 6px", fontSize: 11, color: "#e11d48" }} onClick={() => {
                       if (isEdit && !String(s.id).startsWith("tmp")) delSpecApi(s.id);
                       else setSpecs(specs.filter((x) => x.id !== s.id));
                     }}>×</button></td></tr>
                 ))}
                 {!specs.length && <tr><td colSpan={3} className="muted" style={{ textAlign: "center", padding: 16 }}>—</td></tr>}
                 </tbody></table></div>
-            </div>
+            </Sec>
           )}
 
           {tab === "images" && (
-            <div>
+            <Sec title={`Item Images${images.length > 0 ? ` (${images.length})` : ""}`}>
               {!isEdit ? (
-                <div className="card" style={{ textAlign: "center", padding: 30 }}>
+                <div style={{ textAlign: "center", padding: 30, background: "#f8fafc", border: "1px dashed #cbd5e1", borderRadius: 8 }}>
                   <p className="muted">Save the item first to attach images.</p>
-                  <button type="button" className="btn sm" disabled={busy} onClick={() => save(true)}>Save draft first</button>
+                  <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} disabled={busy} onClick={() => save(true)}>Save draft first</button>
                 </div>
               ) : (
                 <div>
@@ -406,7 +513,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                         <div className="muted" style={{ fontSize: 11 }}>{img.size ? Math.round(img.size / 1024) + " KB" : ""}</div>
                         <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 8 }}>
                           <a className="btn ghost sm" href={`/api/v1/documents/${img.id}/download`} target="_blank" rel="noreferrer">↓</a>
-                          <button type="button" className="btn ghost sm" onClick={() => delImage(img.id)}>×</button>
+                          <button type="button" className="btn ghost sm" style={{ color: "#e11d48" }} onClick={() => delImage(img.id)}>×</button>
                         </div>
                       </div>
                     ))}
@@ -414,21 +521,22 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                   </div>
                 </div>
               )}
-            </div>
+            </Sec>
           )}
         </div>
+        </div>
 
-        {/* footer */}
-        <div className="item-footer">
-          <span className="muted" style={{ fontSize: 13 }}>📎 {t(lang, "attachments")} ({images.length})</span>
-          <span className="spacer" />
+        {/* pinned footer */}
+        <div className="bigin-drawer-foot">
+          <span className="muted" style={{ fontSize: 12.5 }}>📎 {t(lang, "attachments")} ({images.length})</span>
+          <span style={{ flex: 1 }} />
           <button type="button" className="btn ghost" onClick={onClose}>{t(lang, "closeLbl")}</button>
           {idx > 0 && <button type="button" className="btn ghost" onClick={() => setTab(TABS[idx - 1])}>←</button>}
           {isEdit
-            ? <button type="button" className="btn" disabled={busy} onClick={() => save(false)}>{busy ? "..." : t(lang, "saveChanges")}</button>
+            ? <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} disabled={busy} onClick={() => save(false)}>{busy ? "..." : "✓ " + t(lang, "saveChanges")}</button>
             : (idx < TABS.length - 1
-              ? <button type="button" className="btn" onClick={next}>{t(lang, "nextLbl")}</button>
-              : <button type="button" className="btn" disabled={busy} onClick={() => save(false)}>{busy ? "..." : t(lang, "createItem")}</button>)}
+              ? <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} onClick={next}>{t(lang, "nextLbl")} →</button>
+              : <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} disabled={busy} onClick={() => save(false)}>{busy ? "..." : "✓ " + t(lang, "createItem")}</button>)}
         </div>
       </div>
     </div>
@@ -570,7 +678,7 @@ export default function MaterialsPage() {
 
       {tab === "catalog" && (
         <div style={{ display: "flex", justifyContent: "flex-end", margin: "0 24px 10px" }}>
-          <select className="select" style={{ maxWidth: 200 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); loadCatalog(1, limit); }}>
+          <select className="bigin-input" style={{ maxWidth: 200 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); loadCatalog(1, limit); }}>
             <option value="">All categories</option>
             {(lookups.item_category || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
           </select>

@@ -3474,10 +3474,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   .item-drawer { width: 96vw; }
 }
 
-/* ================= TOPBAR BRAND, COMPANY & USER PROFILE ================= */
+/* ================= TOPBAR BRAND, COMPANY & USER PROFILE (CORPORATE SLATE / NAVY) ================= */
 .topbar {
-  background: #ffffff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
+  background: #0f172a !important;
+  border-bottom: 1px solid #1e293b !important;
   padding: 8px 20px !important;
   display: flex !important;
   align-items: center !important;
@@ -3485,7 +3485,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   position: sticky !important;
   top: 0 !important;
   z-index: 50 !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12) !important;
 }
 
 .topbar-brand-link {
@@ -3509,25 +3509,25 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   font-weight: 850;
   font-size: 15px;
   letter-spacing: -0.02em;
-  box-shadow: 0 2px 5px rgba(11, 163, 96, 0.25);
+  box-shadow: 0 2px 8px rgba(11, 163, 96, 0.4);
 }
 .topbar-brand-text {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 .topbar-app-title {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff !important;
   letter-spacing: -0.02em;
 }
 .topbar-app-tag {
   font-size: 9.5px;
   font-weight: 750;
-  color: #0ba360;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  color: #34d399 !important;
+  background: rgba(11, 163, 96, 0.2) !important;
+  border: 1px solid rgba(11, 163, 96, 0.4) !important;
   border-radius: 4px;
   padding: 1px 5px;
   letter-spacing: 0.02em;
@@ -3536,7 +3536,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
 .topbar-v-divider {
   width: 1px;
   height: 18px;
-  background: #e2e8f0;
+  background: #334155 !important;
   flex-shrink: 0;
 }
 
@@ -3544,8 +3544,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   display: flex;
   align-items: center;
   gap: 7px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding: 4px 9px;
   border-radius: 6px;
   max-width: 220px;
@@ -3553,8 +3553,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
 }
 .topbar-company-name {
   font-size: 12px;
-  font-weight: 650;
-  color: #334155;
+  font-weight: 600;
+  color: #e2e8f0 !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3569,8 +3569,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 8px;
   padding: 4px 9px 4px 5px;
   cursor: pointer;
@@ -3579,15 +3579,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   font-family: inherit;
 }
 .topbar-user-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
 }
 .topbar-avatar-badge {
   position: relative;
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  background: linear-gradient(135deg, #1d5bd8 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
   font-size: 12.5px;
   font-weight: 750;
@@ -3604,7 +3604,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   height: 7px;
   border-radius: 50%;
   background: #10b981;
-  border: 1.5px solid #ffffff;
+  border: 1.5px solid #0f172a;
 }
 .topbar-user-info {
   display: flex;
@@ -3620,12 +3620,61 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
 .topbar-user-name {
   font-size: 12px;
   font-weight: 650;
-  color: #0f172a;
+  color: #ffffff !important;
 }
 .topbar-user-role {
   font-size: 10px;
-  color: #64748b;
+  color: #94a3b8 !important;
   font-weight: 500;
+}
+
+/* Breadcrumbs in dark topbar */
+.topbar .crumbs {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+.topbar .crumb-item {
+  color: #cbd5e1 !important;
+}
+.topbar .crumb-item:hover {
+  color: #34d399 !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+.topbar .crumb-chevron {
+  color: #64748b !important;
+}
+.topbar .crumb-proj-pill {
+  background: rgba(14, 165, 233, 0.2) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(14, 165, 233, 0.35) !important;
+}
+.topbar .crumb-now {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: none !important;
+}
+
+/* Topbar Language Button in dark mode */
+.topbar .langbtn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #e2e8f0 !important;
+}
+.topbar .langbtn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+.topbar .langbtn.megabtn {
+  background: #0ba360 !important;
+  border-color: #0ba360 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(11, 163, 96, 0.35) !important;
+}
+.topbar .langbtn.megabtn:hover {
+  background: #098f53 !important;
 }
 
 /* User Profile Dropdown Popover */
@@ -3773,3 +3822,29 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   background: #fef2f2;
   color: #dc2626;
 }
+
+/* ================= Bigin form foundation (estimation + item sheets) ================= */
+.bigin-form-section { margin-bottom: 20px; }
+.bigin-form-section:last-child { margin-bottom: 4px; }
+.bigin-form-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text); margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.bigin-form-section-title .dot { width: 7px; height: 7px; border-radius: 50%; background: #0ba360; flex-shrink: 0; }
+.bigin-form-grid { display: grid; gap: 12px 14px; }
+.bigin-form-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.bigin-form-field > label { font-size: 12px; font-weight: 650; color: var(--text-2); }
+.bigin-form-field > label .req { color: var(--danger); font-weight: 800; }
+.bigin-input {
+  width: 100%; border: 1px solid #d4dcea; border-radius: var(--radius-sm);
+  padding: 9px 12px; font-size: 13.5px; font-family: inherit;
+  background: #fff; color: var(--text); transition: border-color 0.12s, box-shadow 0.12s;
+  box-sizing: border-box;
+}
+textarea.bigin-input { min-height: 84px; resize: vertical; line-height: 1.5; }
+.bigin-input::placeholder { color: #a5b0c5; }
+.bigin-input:hover { border-color: #b9c6e2; }
+.bigin-input:focus { outline: none; border-color: #0ba360; box-shadow: 0 0 0 3px rgba(11, 163, 96, 0.13); }
+.bigin-input:disabled { background: var(--bg); color: var(--muted); }
