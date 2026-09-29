@@ -124,6 +124,7 @@ export default function DataTable({
   viewMode = "list",
   onViewModeChange,
   onExport,
+  rightActions,
 }) {
   const { lang } = useAppStore();
   const [filterOpen, setFilterOpen] = useState(false);
@@ -364,6 +365,8 @@ export default function DataTable({
             </div>
 
             <div className="bigin-toolbar-right">
+              {rightActions}
+
               {/* View Mode Toggle: List vs Kanban */}
               {onViewModeChange && (
                 <div className="bigin-view-toggle">
@@ -535,6 +538,16 @@ export default function DataTable({
                       <line x1="15" y1="9" x2="9" y2="15" />
                     </svg>
                     <span>{t(lang, "noResults")}</span>
+                    {handleAdd && (
+                      <button
+                        type="button"
+                        className="bigin-add-btn"
+                        style={{ marginTop: 8 }}
+                        onClick={handleAdd}
+                      >
+                        + {cleanAddLabel}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
