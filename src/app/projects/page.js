@@ -804,60 +804,62 @@ export default function Projects() {
 
             <form onSubmit={create} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
               <div className="bigin-drawer-body">
-                {/* Live Tranquil Commercial KPI Banner */}
-                <div className="bigin-kpi-banner">
-                  <div className="bigin-kpi-item primary">
-                    <span className="bigin-kpi-label">Contract Value</span>
-                    <span className="bigin-kpi-val">{contractValNum.toLocaleString()} SAR</span>
-                    <span className="bigin-kpi-sub">Excl. 15% VAT</span>
-                  </div>
-                  <div className="bigin-kpi-item">
-                    <span className="bigin-kpi-label">Gross Value (Inc. VAT)</span>
-                    <span className="bigin-kpi-val">{grossContractSar.toLocaleString()} SAR</span>
-                    <span className="bigin-kpi-sub">VAT: {vatValSar.toLocaleString()} SAR</span>
-                  </div>
-                  <div className="bigin-kpi-item">
-                    <span className="bigin-kpi-label">Planned Cost Budget</span>
-                    <span className="bigin-kpi-val" style={{ color: "#d97706" }}>
-                      {totalBudgetWithContingency.toLocaleString()} SAR
-                    </span>
-                    <span className="bigin-kpi-sub">Contingency: {contingencySar.toLocaleString()} SAR</span>
-                  </div>
-                  <div className="bigin-kpi-item">
-                    <span className="bigin-kpi-label">Projected Margin</span>
-                    <span
-                      className="bigin-kpi-val"
-                      style={{
-                        color: projectedMarginSar >= 0 && Number(projectedMarginPct) >= 10 ? "#0ba360" : projectedMarginSar >= 0 ? "#d97706" : "#dc2626",
-                      }}
-                    >
-                      {projectedMarginSar.toLocaleString()} SAR
-                    </span>
-                    <span className="bigin-kpi-sub" style={{ fontWeight: 700, color: projectedMarginSar >= 0 ? "#0ba360" : "#dc2626" }}>
-                      {projectedMarginPct}% Gross Margin
-                    </span>
-                  </div>
-                  <div className="bigin-kpi-item">
-                    <span className="bigin-kpi-label">Advance & Retention</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
-                        Adv {Number(form.advance_pct || 0)}%
+                {/* Live Commercial KPI Banner (shown dynamically once Contract Value > 0) */}
+                {contractValNum > 0 && (
+                  <div className="bigin-kpi-banner">
+                    <div className="bigin-kpi-item primary">
+                      <span className="bigin-kpi-label">Contract Value</span>
+                      <span className="bigin-kpi-val">{contractValNum.toLocaleString()} SAR</span>
+                      <span className="bigin-kpi-sub">Excl. 15% VAT</span>
+                    </div>
+                    <div className="bigin-kpi-item">
+                      <span className="bigin-kpi-label">Gross Value (Inc. VAT)</span>
+                      <span className="bigin-kpi-val">{grossContractSar.toLocaleString()} SAR</span>
+                      <span className="bigin-kpi-sub">VAT: {vatValSar.toLocaleString()} SAR</span>
+                    </div>
+                    <div className="bigin-kpi-item">
+                      <span className="bigin-kpi-label">Planned Cost Budget</span>
+                      <span className="bigin-kpi-val" style={{ color: "#d97706" }}>
+                        {totalBudgetWithContingency.toLocaleString()} SAR
                       </span>
-                      <span style={{ color: "#cbd5e1", fontSize: 12 }}>|</span>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
-                        Ret {Number(form.retention_pct || 10)}%
+                      <span className="bigin-kpi-sub">Contingency: {contingencySar.toLocaleString()} SAR</span>
+                    </div>
+                    <div className="bigin-kpi-item">
+                      <span className="bigin-kpi-label">Projected Margin</span>
+                      <span
+                        className="bigin-kpi-val"
+                        style={{
+                          color: projectedMarginSar >= 0 && Number(projectedMarginPct) >= 10 ? "#0ba360" : projectedMarginSar >= 0 ? "#d97706" : "#dc2626",
+                        }}
+                      >
+                        {projectedMarginSar.toLocaleString()} SAR
+                      </span>
+                      <span className="bigin-kpi-sub" style={{ fontWeight: 700, color: projectedMarginSar >= 0 ? "#0ba360" : "#dc2626" }}>
+                        {projectedMarginPct}% Gross Margin
                       </span>
                     </div>
-                    <span className="bigin-kpi-sub">
-                      Adv: {advanceValSar.toLocaleString()} SAR · Ret: {retentionValSar.toLocaleString()} SAR
-                    </span>
+                    <div className="bigin-kpi-item">
+                      <span className="bigin-kpi-label">Advance & Retention</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
+                          Adv {Number(form.advance_pct || 0)}%
+                        </span>
+                        <span style={{ color: "#cbd5e1", fontSize: 12 }}>|</span>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
+                          Ret {Number(form.retention_pct || 10)}%
+                        </span>
+                      </div>
+                      <span className="bigin-kpi-sub">
+                        Adv: {advanceValSar.toLocaleString()} SAR · Ret: {retentionValSar.toLocaleString()} SAR
+                      </span>
+                    </div>
+                    <div className="bigin-kpi-item">
+                      <span className="bigin-kpi-label">Contract Duration</span>
+                      <span className="bigin-kpi-val">{durationDays ? `${durationDays} Days` : "—"}</span>
+                      <span className="bigin-kpi-sub">{durationDays ? `~ ${durationMonths} Months` : "Set Start/End"}</span>
+                    </div>
                   </div>
-                  <div className="bigin-kpi-item">
-                    <span className="bigin-kpi-label">Contract Duration</span>
-                    <span className="bigin-kpi-val">{durationDays ? `${durationDays} Days` : "—"}</span>
-                    <span className="bigin-kpi-sub">{durationDays ? `~ ${durationMonths} Months` : "Set Start/End"}</span>
-                  </div>
-                </div>
+                )}
 
                 {/* Section 1: Classification & Identification */}
                 <div className="bigin-drawer-sec" id="sec-basic">
