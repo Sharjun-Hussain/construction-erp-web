@@ -375,7 +375,7 @@ export default function DataTable({
                   type="button"
                   className={"bigin-add-btn" + (isClosing ? " close-state" : "")}
                   onClick={handleAdd}
-                  title={primaryAction?.title || `+ ${cleanAddLabel}`}
+                  title={primaryAction?.title || `New ${cleanAddLabel}`}
                 >
                   {isClosing ? (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -388,7 +388,7 @@ export default function DataTable({
                       <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                   )}
-                  <span>{cleanAddLabel.startsWith("+") ? cleanAddLabel : `+ ${cleanAddLabel}`}</span>
+                  <span>{cleanAddLabel}</span>
                 </button>
               )}
 
