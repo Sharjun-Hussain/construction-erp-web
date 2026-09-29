@@ -2386,3 +2386,28 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   accent-color: #0ba360;
   cursor: pointer;
 }
+
+/* ---- Tender module ---- */
+.tl-chip {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef1f7;
+  color: #5b6b82;
+  white-space: nowrap;
+}
+.tl-chip.hot { background: #fff3e0; color: #b26a00; }
+.tl-chip.over { background: #fdeaea; color: #c0392b; }
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+  text-decoration: none;
+  color: inherit;
+}
+.tl-row:last-child { border-bottom: none; }
+.tl-row:hover { background: var(--primary-faint); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
