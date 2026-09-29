@@ -92,7 +92,7 @@ const IMG_PLACEHOLDER = (
 );
 
 // ================= New / Edit Item drawer =================
-function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRates, suppliers, refreshLookups }) {
+function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRates, suppliers, pricelists, refreshLookups, refreshPricelists }) {
   const { lang } = useAppStore();
   const [tab, setTab] = useState("general");
   const [form, setForm] = useState(emptyForm);
@@ -129,6 +129,14 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
     setMsg("");
   }, [editId]);
 
+  useEffect(() => {
+    if ((pricelists || []).length && !pricelists.some((x) => x.name === newPrice.price_list)) {
+      const def = pricelists.find((x) => x.is_default) || pricelists[0];
+      setNewPrice((p) => ({ ...p, price_list: def.name }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pricelists]);
+
   const set = (k, v) => setForm({ ...form, [k]: v });
   const quickAdd = async (type, label) => {
     const name = window.prompt("New " + label + " name:");
@@ -139,7 +147,15 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
       refreshLookups();
     } catch (e) { setMsg(e?.response?.data?.message || "Failed"); }
   };
-
+  const quickAddPriceList = async () => {
+    const name = window.prompt("New price list name:");
+    if (!name?.trim()) return;
+    try {
+      await api.post("/procurement/pricelists", { name: name.trim() });
+      await refreshPricelists();
+      setNewPrice((p) => ({ ...p, price_list: name.trim() }));
+    } catch (e) { setMsg(e?.response?.data?.message || "Failed"); }
+  };
   const payload = () => {
     const p = { ...form };
     for (const k of ["discount_pct", "tolerance_pct", "conversion_factor", "weight_kg", "length_m", "width_m", "height_m", "max_qty", "reorder_qty", "min_qty", "purchase_price", "sell_price", "lead_time_days", "shelf_life_days", "min_purchase_qty"]) p[k] = Number(p[k] || 0);
@@ -514,34 +530,34 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
               </F>
               <F k="defaultLocator"><input className="bigin-input" value={form.default_locator} onChange={(e) => set({ default_locator: e.target.value })} placeholder="Select an Option" /></F>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "minPurchQty")}</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label style={{ flex: 1, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "minPurchQty")}</label>
+                  <label style={{ width: 130, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
                   <input className="bigin-input" type="number" step="0.001" value={form.min_purchase_qty} onChange={(e) => set({ min_purchase_qty: e.target.value })} />
-                  <div style={{ minWidth: 130 }}>
-                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
-                    <select className="bigin-input" value={form.purchase_qty_uom} onChange={(e) => set({ purchase_qty_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
-                  </div>
+                  <select className="bigin-input" style={{ width: 130 }} value={form.purchase_qty_uom} onChange={(e) => set({ purchase_qty_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "minStockQty")}</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label style={{ flex: 1, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "minStockQty")}</label>
+                  <label style={{ width: 130, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
                   <input className="bigin-input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} />
-                  <div style={{ minWidth: 130 }}>
-                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
-                    <select className="bigin-input" value={form.min_stock_uom} onChange={(e) => set({ min_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
-                  </div>
+                  <select className="bigin-input" style={{ width: 130 }} value={form.min_stock_uom} onChange={(e) => set({ min_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
                 </div>
               </div>
               <F k="openingDate"><input className="bigin-input" type="date" value={form.opening_date || ""} onChange={(e) => set({ opening_date: e.target.value })} /></F>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 650, color: '#3b4a63' }}>{t(lang, "maxStockQty")}</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label style={{ flex: 1, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "maxStockQty")}</label>
+                  <label style={{ width: 130, fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
+                </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 5 }}>
                   <input className="bigin-input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} />
-                  <div style={{ minWidth: 130 }}>
-                    <label style={{ fontSize: 12, fontWeight: 650, color: "#3b4a63" }}>{t(lang, "uomQty")}</label>
-                    <select className="bigin-input" value={form.max_stock_uom} onChange={(e) => set({ max_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
-                  </div>
+                  <select className="bigin-input" style={{ width: 130 }} value={form.max_stock_uom} onChange={(e) => set({ max_stock_uom: e.target.value })}><option value="">Select UoM</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select>
                 </div>
               </div>
             </div>
@@ -645,7 +661,13 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                 {baseUom ? `${baseUom} (Base UoM)` : `${form.unit || ""} (Base UoM)`}
               </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-                <input className="bigin-input" style={{ maxWidth: 150 }} placeholder="Price list" value={newPrice.price_list} onChange={(e) => setNewPrice({ ...newPrice, price_list: e.target.value })} />
+                <div style={{ display: "flex", gap: 6, maxWidth: 220, flex: 1, minWidth: 170 }}>
+                  <select className="bigin-input" value={newPrice.price_list} onChange={(e) => setNewPrice({ ...newPrice, price_list: e.target.value })}>
+                    {(pricelists || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
+                  </select>
+                  <button type="button" onClick={quickAddPriceList} title="New price list"
+                    style={{ background: "#0ba360", color: "#fff", border: "none", borderRadius: 999, width: 26, height: 26, alignSelf: "center", fontSize: 15, fontWeight: 700, lineHeight: 1, cursor: "pointer", flexShrink: 0 }}>+</button>
+                </div>
                 <input className="bigin-input" style={{ maxWidth: 100 }} type="number" step="0.01" placeholder="%" value={newPrice.markup_pct} onChange={(e) => setNewPrice({ ...newPrice, markup_pct: e.target.value })} />
                 <select className="bigin-input" style={{ maxWidth: 100 }} value={newPrice.currency} onChange={(e) => setNewPrice({ ...newPrice, currency: e.target.value })}>{["SAR", "USD", "EUR", "AED"].map((x) => (<option key={x}>{x}</option>))}</select>
                 <input className="bigin-input" style={{ maxWidth: 130 }} type="number" step="0.01" placeholder="Unit price *" value={newPrice.unit_price} onChange={(e) => setNewPrice({ ...newPrice, unit_price: e.target.value })} />
@@ -772,6 +794,7 @@ export default function MaterialsPage() {
   const [lookups, setLookups] = useState({});
   const [vatRates, setVatRates] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [pricelists, setPricelists] = useState([]);
 
   const loadCatalog = (p = page, l = limit, sb = sortBy, sd = sortDir) => {
     setLoading(true);
@@ -790,8 +813,9 @@ export default function MaterialsPage() {
     Promise.all(["item_category", "manufacturer", "uom", "department", "warehouse"].map((ty) => api.get("/masters/lookup/" + ty).then((r) => [ty, r.data.data || []]).catch(() => [ty, []])))
       .then((pairs) => setLookups(Object.fromEntries(pairs)));
   };
+  const refreshPricelists = () => api.get("/procurement/pricelists?active=1").then((r) => setPricelists(r.data.data || [])).catch(() => {});
   useEffect(() => {
-    loadCatalog(1, limit, sortBy, sortDir); loadStock(); refreshLookups();
+    loadCatalog(1, limit, sortBy, sortDir); loadStock(); refreshLookups(); refreshPricelists();
     api.get("/masters/vat-rates").then((r) => setVatRates((r.data.data || []).filter((v) => v.is_active))).catch(() => {});
     api.get("/procurement/suppliers").then((r) => setSuppliers(r.data.data || [])).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -927,7 +951,7 @@ export default function MaterialsPage() {
           onClose={() => setDrawer(null)}
           onSaved={() => saved()}
           onDraftCreated={(id) => setDrawer({ mode: "edit", id })}
-          lookups={lookups} vatRates={vatRates} suppliers={suppliers} refreshLookups={refreshLookups}
+          lookups={lookups} vatRates={vatRates} suppliers={suppliers} pricelists={pricelists} refreshLookups={refreshLookups} refreshPricelists={refreshPricelists}
         />
       )}
     </div>

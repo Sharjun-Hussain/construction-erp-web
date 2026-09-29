@@ -11,6 +11,7 @@ const ROUTE_KEY = {
   procurement: "procurement",
   inventory: "inventorySection",
   product: "product",
+  pricelist: "priceLists",
   pos: "purchaseOrders",
   grns: "grn",
   suppliers: "suppliers",
@@ -27,6 +28,8 @@ const ROUTE_KEY = {
   quotations: "quotation",
   order: "Sales Order",
   orders: "Sales Order",
+  department: "Department",
+  departments: "Department",
 };
 
 // Routes where project context doesn't belong

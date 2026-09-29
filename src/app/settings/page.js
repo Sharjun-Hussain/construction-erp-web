@@ -69,7 +69,7 @@ const T = {
 
 const TILES = {
   organization: { title: "Organization Profile", desc: "Company CR, VAT ID, branding, branches & address", icon: "building", tint: "blue", kind: "panel", comp: "org", tag: "System Panel" },
-  department: { title: "Departments", desc: "Organizational departments & corporate divisions", icon: "users", tint: "violet", kind: "lookup", lookup: "department", tag: "Lookup" },
+  department: { title: "Departments", desc: "Organizational departments & corporate divisions", icon: "users", tint: "violet", kind: "link", href: "/settings/department", tag: "Department Directory" },
   designation: { title: "Designations", desc: "Job designations, hierarchy levels & staff titles", icon: "id", tint: "cyan", kind: "lookup", lookup: "designation", tag: "Lookup" },
   roles: { title: "Roles & Permissions", desc: "Role-based security matrix, scopes & privileges", icon: "shield", tint: "green", kind: "link", href: "/roles", tag: "Security Matrix" },
   user: { title: "User Directory", desc: "System operators, engineers & account credentials", icon: "user", tint: "amber", kind: "link", href: "/users", tag: "User Accounts" },

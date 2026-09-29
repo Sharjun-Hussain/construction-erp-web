@@ -185,7 +185,7 @@ const TRANQUIL_GROUPS = [
         items: [
           { label: "Item", href: "/inventory/product" },
           { label: "Bundle", href: null },
-          { label: "Price List", href: null },
+          { label: "Price List", href: "/inventory/pricelist" },
         ],
       },
       {

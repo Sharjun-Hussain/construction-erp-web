@@ -236,9 +236,15 @@ const ICONS = {
   changes: (
     <Svg>
       <path d="M17 1l4 4-4 4" />
-      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+      <path d="M3 11V9a4 4 0 0 0-4-4h14" />
       <path d="M7 23l-4-4 4-4" />
       <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+    </Svg>
+  ),
+  pricelist: (
+    <Svg>
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+      <circle cx="7" cy="7" r="1.2" />
     </Svg>
   ),
 };
@@ -275,6 +281,7 @@ const NAV_GROUPS = [
     titleKey: "inventorySection",
     items: [
       { href: "/inventory/product", key: "product", icon: "materials" },
+      { href: "/inventory/pricelist", key: "priceLists", icon: "pricelist" },
     ],
   },
   {
