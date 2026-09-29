@@ -761,15 +761,19 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 700; letter-spacing: -0.02em; color:
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 54px);
+  height: calc(100vh - 50px);
+  max-height: calc(100vh - 50px);
+  overflow: hidden;
   background: #ffffff;
 }
 .projects-page {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: 100%;
+  max-height: 100%;
   width: 100%;
+  overflow: hidden;
   background: #ffffff;
 }
 .form-sec { margin-bottom: 14px; }
@@ -1201,7 +1205,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .feed-date { color: var(--faint); font-size: 12px; white-space: nowrap; }
 @media (max-width: 1100px) { .dash-cols { grid-template-columns: 1fr; } .pipe { grid-template-columns: 1fr; } }
 
-/* ---------- Zoho Bigin Style Data Table Suite (Borderless & Fixed Bottom Dock) ---------- */
 .bigin-dt-container {
   background: #ffffff;
   border: none !important;
@@ -1210,10 +1213,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: calc(100vh - 54px);
+  height: 100%;
+  min-height: 0;
   width: 100%;
   margin: 0 !important;
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* 1. Bigin Top Toolbar */
@@ -1221,6 +1225,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   height: 56px;
   min-height: 56px;
   max-height: 56px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1228,8 +1233,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   padding: 0 24px;
   background: #ffffff;
   border-bottom: 1px solid #edf2f7;
-  position: sticky;
-  top: 50px;
   z-index: 10;
   box-sizing: border-box;
 }
@@ -1612,14 +1615,13 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   border-radius: 1px;
 }
 
-/* 4. Bigin Table Elements */
 .bigin-table-scroll {
   flex: 1;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: auto;
   scrollbar-width: thin;
   background: #ffffff;
-  min-height: 250px;
 }
 .bigin-table {
   width: 100%;
@@ -1781,22 +1783,21 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   animation: spin 0.7s linear infinite;
 }
 
-/* 5. Bigin Footer (Fixed at bottom matching Bigin reference) */
 .bigin-footer {
   position: sticky;
   bottom: 0;
-  z-index: 15;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 24px;
+  padding: 10px 24px;
   background: #ffffff;
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid #e2e8f0;
   gap: 16px;
   flex-wrap: wrap;
   width: 100%;
   margin-top: auto;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.08);
 }
 .bigin-footer-stats {
   display: flex;
