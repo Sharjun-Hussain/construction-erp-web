@@ -6,6 +6,45 @@ import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import DataTable, { BiginAvatar } from "@/components/DataTable";
 
+function EditIcon({ size = 13, style = {} }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: "inline-block", verticalAlign: "middle", ...style }}
+    >
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon({ size = 12, style = {} }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: "inline-block", verticalAlign: "middle", ...style }}
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+  );
+}
+
 const HEADS = ["Material", "Labor", "Equipment", "Subcontract", "Overhead"];
 const PROJECT_TYPES = [
   "Commercial",
@@ -633,8 +672,10 @@ export default function Projects() {
             className="btn ghost sm"
             onClick={() => openEdit(p.id)}
             title="Edit Project (?edit)"
+            style={{ display: "inline-flex", alignItems: "center", gap: 5 }}
           >
-            Edit
+            <EditIcon size={12} />
+            <span>Edit</span>
           </button>
         </div>
       ),
@@ -1261,15 +1302,19 @@ export default function Projects() {
                   className="btn ghost sm"
                   onClick={() => openEdit(viewId)}
                   title="Edit this project"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
                 >
-                  ✏ Edit
+                  <EditIcon size={13} />
+                  <span>Edit</span>
                 </button>
                 <a
                   className="btn ghost sm"
                   href={"/projects/" + viewId}
                   title="Open full page"
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
                 >
-                  ↗ Full Page
+                  <ExternalLinkIcon size={12} />
+                  <span>Full Page</span>
                 </a>
                 <button type="button" className="bigin-drawer-close" onClick={closeView} title="Close drawer">
                   ✕
@@ -1530,7 +1575,15 @@ export default function Projects() {
 
             <div className="bigin-drawer-foot">
               <button type="button" className="btn ghost" onClick={closeView}>Close</button>
-              <button type="button" className="btn" onClick={() => openEdit(viewId)}>✏ Edit Project</button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => openEdit(viewId)}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <EditIcon size={14} />
+                <span>Edit Project</span>
+              </button>
             </div>
           </div>
         </>
