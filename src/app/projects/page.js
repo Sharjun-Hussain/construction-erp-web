@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import DataTable, { BiginAvatar } from "@/components/DataTable";
+import TranquilProjectModal from "@/components/TranquilProjectModal";
 
 function EditIcon({ size = 13, style = {} }) {
   return (
@@ -259,6 +260,8 @@ export default function Projects() {
 
   // URL Parameter state: ?new=1, ?view=<id>, ?edit=<id>
   const [showNew, setShowNew] = useState(false);
+  const [isTranquilOpen, setIsTranquilOpen] = useState(false);
+  const [tranquilEditData, setTranquilEditData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [viewData, setViewData] = useState(null);
   const [viewLoading, setViewLoading] = useState(false);
@@ -368,7 +371,9 @@ export default function Projects() {
 
   // Drawer open / close handlers
   const openNew = () => {
-    setShowNew(true);
+    setTranquilEditData(null);
+    setIsTranquilOpen(true);
+    setShowNew(false);
     setViewId(null);
     setEditId(null);
     updateUrlParam({ new: "1" }, ["view", "edit"]);
@@ -376,6 +381,7 @@ export default function Projects() {
 
   const closeNew = () => {
     setShowNew(false);
+    setIsTranquilOpen(false);
     updateUrlParam({}, ["new"]);
   };
 
@@ -393,10 +399,15 @@ export default function Projects() {
   };
 
   const openEdit = (id) => {
-    setEditId(id);
-    setShowNew(false);
-    setViewId(null);
-    updateUrlParam({ edit: id }, ["new", "view"]);
+    api.get("/projects/" + id).then((r) => {
+      setTranquilEditData(r.data.data);
+      setIsTranquilOpen(true);
+    }).catch(() => {
+      setEditId(id);
+      setShowNew(false);
+      setViewId(null);
+      updateUrlParam({ edit: id }, ["new", "view"]);
+    });
   };
 
   const closeEdit = () => {
@@ -1977,6 +1988,21 @@ export default function Projects() {
           </div>
         </>
       )}
+
+      {/* TRANQUIL PROJECT MASTER FULL-SCREEN MODAL */}
+      <TranquilProjectModal
+        isOpen={isTranquilOpen}
+        editData={tranquilEditData}
+        onClose={() => {
+          setIsTranquilOpen(false);
+          setTranquilEditData(null);
+        }}
+        onSaved={() => {
+          setIsTranquilOpen(false);
+          setTranquilEditData(null);
+          load();
+        }}
+      />
     </div>
   );
 }
