@@ -1588,7 +1588,7 @@ export default function Projects() {
                     <div className="bigin-kpi-item primary">
                       <span className="bigin-kpi-label">Contract Value</span>
                       <span className="bigin-kpi-val">{editContractValNum.toLocaleString()} SAR</span>
-                      <span className="bigin-kpi-sub">Excl. {editForm.vat_pct}% VAT</span>
+                      <span className="bigin-kpi-sub">Excl. {Number(editForm.vat_pct || 15)}% VAT</span>
                     </div>
                     <div className="bigin-kpi-item">
                       <span className="bigin-kpi-label">Gross Value</span>
@@ -1597,10 +1597,18 @@ export default function Projects() {
                     </div>
                     <div className="bigin-kpi-item">
                       <span className="bigin-kpi-label">Advance & Retention</span>
-                      <span className="bigin-kpi-val" style={{ fontSize: 13 }}>
-                        Adv: {editAdvanceValSar.toLocaleString()} SAR
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
+                          Adv {Number(editForm.advance_pct || 0)}%
+                        </span>
+                        <span style={{ color: "#cbd5e1", fontSize: 12 }}>|</span>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap" }}>
+                          Ret {Number(editForm.retention_pct || 10)}%
+                        </span>
+                      </div>
+                      <span className="bigin-kpi-sub">
+                        Adv: {editAdvanceValSar.toLocaleString()} SAR · Ret: {editRetentionValSar.toLocaleString()} SAR
                       </span>
-                      <span className="bigin-kpi-sub">Ret: {editRetentionValSar.toLocaleString()} SAR</span>
                     </div>
                     <div className="bigin-kpi-item">
                       <span className="bigin-kpi-label">Duration</span>
