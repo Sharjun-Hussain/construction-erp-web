@@ -2411,3 +2411,311 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 }
 .tl-row:last-child { border-bottom: none; }
 .tl-row:hover { background: var(--primary-faint); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+
+/* ---- Tranquil-style Upgraded Enterprise Mega Menu & App Hub ---- */
+.megabtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-inline-end: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-weight: 650;
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.megabtn:hover {
+  background: #e2e8f0;
+  color: #0ba360;
+  border-color: #cbd5e1;
+}
+
+/* ---- Tranquil QS Pro Mega Menu (Our Enterprise Design System) ---- */
+.megabtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-inline-end: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-weight: 650;
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: all 0.15s ease;
+}
+.megabtn:hover {
+  background: #f8fafc;
+  color: #0ba360;
+  border-color: #cbd5e1;
+}
+
+.mega-ov {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  animation: megaFadeIn 0.14s ease-out;
+}
+@keyframes megaFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mega-panel {
+  width: min(1440px, 98vw);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 25px 70px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  padding: 18px 24px 22px;
+  color: #0f172a;
+  animation: megaPanelPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 94vh;
+  overflow: hidden;
+}
+@keyframes megaPanelPop {
+  from { transform: translateY(-8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.mega-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf2f7;
+  flex-wrap: wrap;
+}
+
+.mega-quick-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 5px 11px;
+  transition: all 0.12s ease;
+}
+.mega-quick-item:hover {
+  background: #f1f5f9;
+  color: #0ba360;
+  border-color: #cbd5e1;
+}
+.mega-quick-item.dim {
+  color: #94a3b8;
+  cursor: default;
+  background: #f8fafc;
+}
+
+.mega-top-spacer {
+  flex: 1;
+}
+
+.mega-search-wrap {
+  position: relative;
+  min-width: 260px;
+  max-width: 400px;
+}
+.mega-search-icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 11px;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+.mega-search {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  border-radius: 8px;
+  padding: 6px 30px 6px 32px;
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.12s ease;
+}
+[dir="rtl"] .mega-search {
+  padding: 6px 32px 6px 30px;
+}
+.mega-search::placeholder {
+  color: #94a3b8;
+}
+.mega-search:focus {
+  background: #ffffff;
+  border-color: #0ba360;
+  box-shadow: 0 0 0 2px rgba(11, 163, 96, 0.14);
+}
+
+.mega-close-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.12s ease;
+}
+.mega-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Seamless 6-Column Layout with Our Design Pattern */
+.mega-columns-wrap {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  align-items: flex-start;
+}
+@media (max-width: 1100px) {
+  .mega-columns-wrap {
+    grid-template-columns: repeat(3, 1fr);
+    overflow-y: auto;
+  }
+}
+@media (max-width: 640px) {
+  .mega-columns-wrap {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mega-col-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 14px;
+  border-inline-end: 1px solid #f1f5f9;
+}
+.mega-col-group:first-child {
+  padding-inline-start: 0;
+}
+.mega-col-group:last-child {
+  padding-inline-end: 0;
+  border-inline-end: none;
+}
+
+.mega-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mega-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 3px;
+}
+
+.mega-sec-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mega-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 550;
+  text-decoration: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1.35;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mega-link:hover {
+  background: #f8fafc;
+  color: #0ba360;
+  padding-inline-start: 8px;
+}
+[dir="rtl"] .mega-link:hover {
+  padding-inline-start: 8px;
+}
+
+.mega-link.active {
+  color: #0ba360;
+  font-weight: 750;
+  background: #f0fdf4;
+}
+.mega-link-here {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #0ba360;
+  flex-shrink: 0;
+}
+
+.mega-link.soon {
+  color: #94a3b8;
+  cursor: default;
+}
+.mega-link.soon:hover {
+  color: #94a3b8;
+  background: transparent;
+  padding-inline-start: 6px;
+}
+
+.mega-link-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0;
+}
+
+.mega-empty-notice {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+
+

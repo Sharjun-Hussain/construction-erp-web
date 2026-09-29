@@ -190,6 +190,57 @@ const ICONS = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </Svg>
   ),
+  enquiries: (
+    <Svg>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.5" y2="16.5" />
+    </Svg>
+  ),
+  inspections: (
+    <Svg>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Svg>
+  ),
+  proposals: (
+    <Svg>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <path d="M9 13h6" />
+      <path d="M9 17h6" />
+    </Svg>
+  ),
+  jobs: (
+    <Svg>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="m9 12 2 2 4-4" />
+    </Svg>
+  ),
+  labour: (
+    <Svg>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </Svg>
+  ),
+  equipment: (
+    <Svg>
+      <path d="M14 17V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10" />
+      <path d="M14 17h-4" />
+      <path d="M14 11h4l3 3v3h-7" />
+      <circle cx="7.5" cy="17.5" r="2" />
+      <circle cx="17.5" cy="17.5" r="2" />
+    </Svg>
+  ),
+  changes: (
+    <Svg>
+      <path d="M17 1l4 4-4 4" />
+      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+      <path d="M7 23l-4-4 4-4" />
+      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+    </Svg>
+  ),
 };
 
 const NAV_GROUPS = [
@@ -202,7 +253,10 @@ const NAV_GROUPS = [
       { href: "/customers", key: "customers", icon: "customers" },
       { href: "/boqs", key: "boq", icon: "boq", badge: "BOQ" },
       { href: "/estimations", key: "estimation", icon: "estimation", badge: "QS" },
+      { href: "/enquiries", key: "enquiries", icon: "enquiries", badge: "ENQ" },
+      { href: "/inspections", key: "inspections", icon: "inspections" },
       { href: "/tenders", key: "tenders", icon: "tenders" },
+      { href: "/proposals", key: "proposals", icon: "proposals" },
       { href: "/guarantees", key: "guarantees", icon: "guarantees", badge: "BG" },
     ],
   },
@@ -223,6 +277,10 @@ const NAV_GROUPS = [
     items: [
       { href: "/subcontract", key: "subcontract", icon: "subcontract" },
       { href: "/site", key: "site", icon: "site", badge: "DPR" },
+      { href: "/jobs", key: "jobs", icon: "jobs" },
+      { href: "/labour", key: "labour", icon: "labour" },
+      { href: "/equipment", key: "equipment", icon: "equipment", badge: "EQP" },
+      { href: "/changes", key: "changes", icon: "changes", badge: "VO" },
       { href: "/ipc", key: "ipc", icon: "ipc", badge: "ZATCA" },
     ],
   },

@@ -6,6 +6,7 @@ import { t } from "@/lib/i18n";
 import { useAppStore } from "@/store/useAppStore";
 import Sidebar from "@/components/Sidebar";
 import Breadcrumb from "@/components/Breadcrumb";
+import MegaMenu from "@/components/MegaMenu";
 
 export default function AppShell({ children }) {
   const path = usePathname();
@@ -14,6 +15,7 @@ export default function AppShell({ children }) {
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -75,12 +77,17 @@ export default function AppShell({ children }) {
           </button>
           <Breadcrumb lang={lang} path={path} projectCode={(projects.find((p) => p.id === projectId) || {}).code || ""} />
           <span className="spacer" />
+          <button className="langbtn megabtn" onClick={() => setMegaOpen(true)} aria-label="menu">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+            {t(lang, "mm_menu")}
+          </button>
           <button className="langbtn" onClick={() => setLang(lang === "en" ? "ar" : "en")}>{lang === "en" ? "العربية" : "English"}</button>
         </div>
         <div className="page">
           {children}
         </div>
       </div>
+      <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} onLogout={logout} path={path} projects={projects} />
     </div>
   );
 }
