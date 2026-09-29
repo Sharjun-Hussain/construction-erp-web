@@ -22,10 +22,13 @@ const ROUTE_KEY = {
   users: "users",
   roles: "roles",
   organizations: "organization",
+  sales: "sales",
+  quotation: "quotation",
+  quotations: "quotation",
 };
 
 // Routes where project context doesn't belong
-const GLOBAL_ROUTES = new Set(["settings", "users", "roles", "organizations", "login"]);
+const GLOBAL_ROUTES = new Set(["settings", "users", "roles", "organizations", "login", "sales"]);
 
 const isIdSeg = (s) => /^[0-9a-f]{8,}(-[0-9a-f]{4,}){0,4}$/i.test(s) || /^\d+$/.test(s);
 const humanize = (s) => s.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -57,7 +60,7 @@ export default function Breadcrumb({ lang, path, projectCode }) {
   const primaryRoute = allSeg[0] || "";
   const isGlobalRoute = GLOBAL_ROUTES.has(primaryRoute);
 
-  const labelOf = (s) => (ROUTE_KEY[s] ? t(lang, ROUTE_KEY[s]) : humanize(s));
+  const labelOf = (s) => (ROUTE_KEY[s] ? t(lang, ROUTE_KEY[s]) || humanize(s) : humanize(s));
 
   const acc = [];
   const crumbs = [];

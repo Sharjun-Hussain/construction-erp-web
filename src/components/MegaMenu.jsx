@@ -97,7 +97,7 @@ const TRANQUIL_GROUPS = [
         items: [
           { label: "Dashboard", href: "/dashboard" },
           { label: "Enquiry", href: "/enquiries" },
-          { label: "Quotation", href: "/proposals" },
+          { label: "Quotation", href: "/sales/quotation" },
           { label: "Sales Order", href: null },
           { label: "Goods Delivery", href: null },
           { label: "Sales Invoice", href: null },
@@ -124,7 +124,7 @@ const TRANQUIL_GROUPS = [
           { label: "Enquiry", href: "/enquiries" },
           { label: "Site Inspection", href: "/inspections" },
           { label: "Estimation", href: "/estimations" },
-          { label: "Proposal", href: "/proposals" },
+          { label: "Proposal", href: "/sales/quotation" },
           { label: "Tender", href: "/tenders" },
           { label: "BOQ", href: "/boqs" },
           { label: "Project", href: "/projects" },

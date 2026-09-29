@@ -48,7 +48,48 @@ const emptyForm = {
   min_qty: 0, max_qty: 0, reorder_qty: 0,
   batch_tracking: false, serial_tracking: false, expiry_tracking: false, shelf_life_days: 0,
   purchase_price: 0, sell_price: 0, is_active: true,
+  limit_price_as_cost: false, default_warehouse: "", default_locator: "",
+  min_purchase_qty: 0, purchase_qty_uom: "", min_stock_uom: "", max_stock_uom: "",
+  opening_date: "",
 };
+
+// image thumbnail with authenticated blob preview
+function ImgThumb({ img, onDelete }) {
+  const [url, setUrl] = useState(null);
+  useEffect(() => {
+    let alive = true; let obj = null;
+    api.get("/documents/" + img.id + "/download", { responseType: "blob" })
+      .then((r) => { obj = URL.createObjectURL(r.data); if (alive) setUrl(obj); })
+      .catch(() => {});
+    return () => { alive = false; if (obj) URL.revokeObjectURL(obj); };
+  }, [img.id]);
+  return (
+    <div className="card" style={{ padding: 10, textAlign: "center" }}>
+      {url
+        ? <img src={url} alt={img.file_name} style={{ width: "100%", height: 110, objectFit: "cover", borderRadius: 6, border: "1px solid #e2e8f0" }} />
+        : <div style={{ fontSize: 34 }}>🖼️</div>}
+      <div style={{ fontSize: 12, wordBreak: "break-all", margin: "6px 0" }}>{img.file_name}</div>
+      <div className="muted" style={{ fontSize: 11 }}>{img.size ? Math.round(img.size / 1024) + " KB" : ""}</div>
+      <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 8 }}>
+        <a className="btn ghost sm" href={`/api/v1/documents/${img.id}/download`} target="_blank" rel="noreferrer">↓</a>
+        <button type="button" className="btn ghost sm" style={{ color: "#e11d48" }} onClick={onDelete}>×</button>
+      </div>
+    </div>
+  );
+}
+
+const IMG_PLACEHOLDER = (
+  <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+    <rect x="8" y="8" width="104" height="104" rx="4" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
+    <line x1="60" y1="8" x2="34" y2="34" stroke="#94a3b8" strokeWidth="2" />
+    <line x1="60" y1="8" x2="86" y2="34" stroke="#94a3b8" strokeWidth="2" />
+    <circle cx="60" cy="8" r="4" fill="#94a3b8" />
+    <rect x="30" y="38" width="60" height="48" rx="2" fill="#fff" stroke="#475569" strokeWidth="2.5" />
+    <circle cx="42" cy="52" r="6" fill="#fbbf24" />
+    <path d="M30 78l14-18 10 12 8-9 12 15H30z" fill="#34d399" />
+    <path d="M30 78l14-18 10 12 4-4.5V78H30z" fill="#0ea5e9" opacity="0.55" />
+  </svg>
+);
 
 // ================= New / Edit Item drawer =================
 function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRates, suppliers, refreshLookups }) {
@@ -57,14 +98,17 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
   const [form, setForm] = useState(emptyForm);
   const [prices, setPrices] = useState([]);
   const [specs, setSpecs] = useState([]);
+  const [uoms, setUoms] = useState([]);
+  const [stocks, setStocks] = useState([]);
   const [images, setImages] = useState([]);
   const [detail, setDetail] = useState(null);
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
-  const [newPrice, setNewPrice] = useState({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1 });
+  const [newPrice, setNewPrice] = useState({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1, markup_pct: 0, effective_from: "" });
   const [newSpec, setNewSpec] = useState({ attr_name: "", attr_value: "" });
+  const [newUom, setNewUom] = useState({ uom: "", is_base: false, conversion_to_base: 1, markup_pct: 0, purchase_price: "", cost_price: "", sales_price: "", limit_price: "", is_default_sales: false, is_default_purchase: false });
+  const [newStock, setNewStock] = useState({ warehouse: "", locator: "", qty: "", uom: "" });
   const isEdit = !!editId;
-  const idx = TABS.indexOf(tab);
 
   useEffect(() => {
     if (isEdit) {
@@ -74,12 +118,15 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
         setForm({ ...emptyForm, ...d, preferred_supplier_id: d.preferred_supplier_id || "" });
         setPrices(d.prices || []);
         setSpecs(d.specs || []);
+        setUoms(d.uoms || []);
+        setStocks(d.stocks || []);
         setImages(d.images || []);
       }).catch(() => setMsg("Failed to load item"));
     } else {
-      setForm(emptyForm); setPrices([]); setSpecs([]); setImages([]); setDetail(null);
+      setForm(emptyForm); setPrices([]); setSpecs([]); setUoms([]); setStocks([]); setImages([]); setDetail(null);
+      setTab("general");
     }
-    setTab("general"); setMsg("");
+    setMsg("");
   }, [editId]);
 
   const set = (k, v) => setForm({ ...form, [k]: v });
@@ -95,15 +142,18 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
 
   const payload = () => {
     const p = { ...form };
-    for (const k of ["discount_pct", "tolerance_pct", "conversion_factor", "weight_kg", "length_m", "width_m", "height_m", "max_qty", "reorder_qty", "min_qty", "purchase_price", "sell_price", "lead_time_days", "shelf_life_days"]) p[k] = Number(p[k] || 0);
+    for (const k of ["discount_pct", "tolerance_pct", "conversion_factor", "weight_kg", "length_m", "width_m", "height_m", "max_qty", "reorder_qty", "min_qty", "purchase_price", "sell_price", "lead_time_days", "shelf_life_days", "min_purchase_qty"]) p[k] = Number(p[k] || 0);
     if (!p.code) delete p.code;
     if (!p.vat_rate_id) delete p.vat_rate_id;
     if (!p.preferred_supplier_id) delete p.preferred_supplier_id;
     if (!p.purchase_unit) delete p.purchase_unit;
+    for (const k of ["default_warehouse", "default_locator", "purchase_qty_uom", "min_stock_uom", "max_stock_uom", "opening_date"]) if (!p[k]) delete p[k];
     p.description = stripHtml(p.description) || form.description;
     if (!isEdit) {
-      p.prices = prices.filter((x) => Number(x.unit_price) > 0).map((x) => ({ ...x, unit_price: Number(x.unit_price), min_qty: Number(x.min_qty || 1) }));
-      p.specs = specs.filter((x) => x.attr_name);
+      p.prices = prices.filter((x) => Number(x.unit_price) > 0).map((x) => ({ ...x, unit_price: Number(x.unit_price), min_qty: Number(x.min_qty || 1), markup_pct: Number(x.markup_pct || 0), id: undefined }));
+      p.specs = specs.filter((x) => x.attr_name).map((x) => ({ attr_name: x.attr_name, attr_value: x.attr_value }));
+      p.uoms = uoms.filter((x) => x.uom).map((x) => ({ ...x, id: undefined }));
+      p.stocks = stocks.filter((x) => x.warehouse && Number(x.qty) > 0).map((x) => ({ ...x, id: undefined }));
     }
     return p;
   };
@@ -115,7 +165,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
       let id = editId;
       if (isEdit) {
         await api.put("/procurement/items/" + editId, payload());
-        onSaved(id);
+        if (!stayOpen) onSaved(id);
       } else {
         const r = await api.post("/procurement/items", payload());
         id = r.data.data.id;
@@ -127,17 +177,15 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
     finally { setBusy(false); }
   };
 
-  const next = () => {
-    if (idx < TABS.length - 1) setTab(TABS[idx + 1]);
-    else save(false);
+  const saveAndNext = async () => {
+    const id = await save(true);
+    if (id && TABS.indexOf(tab) < TABS.length - 1) setTab(TABS[TABS.indexOf(tab) + 1]);
   };
-
-  // edit-mode immediate ops
   const addPriceApi = async () => {
     if (!newPrice.unit_price) return;
     try {
-      const r = await api.post(`/procurement/items/${editId}/prices`, { ...newPrice, unit_price: Number(newPrice.unit_price), min_qty: Number(newPrice.min_qty || 1) });
-      setPrices([...prices, r.data.data]); setNewPrice({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1 });
+      const r = await api.post(`/procurement/items/${editId}/prices`, { ...newPrice, unit_price: Number(newPrice.unit_price), min_qty: Number(newPrice.min_qty || 1), markup_pct: Number(newPrice.markup_pct || 0) });
+      setPrices([...prices, r.data.data]); setNewPrice({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1, markup_pct: 0, effective_from: "" });
     } catch (e) { setMsg(e?.response?.data?.message || "Failed"); }
   };
   const delPriceApi = async (pid) => {
@@ -152,6 +200,63 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
   const delSpecApi = async (sid) => {
     await api.delete(`/procurement/items/specs/${sid}`);
     setSpecs(specs.filter((x) => x.id !== sid));
+  };
+  const numUom = (u) => ({
+    ...u,
+    conversion_to_base: Number(u.conversion_to_base || 1), markup_pct: Number(u.markup_pct || 0),
+    purchase_price: Number(u.purchase_price || 0), cost_price: Number(u.cost_price || 0),
+    sales_price: Number(u.sales_price || 0), limit_price: Number(u.limit_price || 0),
+  });
+  const pushUom = (row) => {
+    // single base / single defaults, like the server
+    let rows = [...uoms];
+    if (row.is_base) rows = rows.map((x) => ({ ...x, is_base: false }));
+    if (row.is_default_sales) rows = rows.map((x) => ({ ...x, is_default_sales: false }));
+    if (row.is_default_purchase) rows = rows.map((x) => ({ ...x, is_default_purchase: false }));
+    if (form.limit_price_as_cost && row.cost_price !== undefined) row.limit_price = row.cost_price;
+    return [...rows, row];
+  };
+  const addUomRow = async () => {
+    if (!newUom.uom) { setMsg("Select a UOM first"); return; }
+    setMsg("");
+    const row = numUom({ ...newUom });
+    if (isEdit) {
+      try {
+        await api.post(`/procurement/items/${editId}/uoms`, row);
+        const d = await api.get("/procurement/items/" + editId);
+        setUoms(d.data.data.uoms || []);
+      } catch (e) { setMsg(e?.response?.data?.message || "Failed"); }
+    } else {
+      setUoms(pushUom({ ...row, id: "tmp" + Date.now() }));
+    }
+    setNewUom({ uom: "", is_base: uoms.length === 0, conversion_to_base: 1, markup_pct: 0, purchase_price: "", cost_price: "", sales_price: "", limit_price: "", is_default_sales: false, is_default_purchase: false });
+  };
+  const delUomRow = async (u) => {
+    if (isEdit && !String(u.id).startsWith("tmp")) {
+      try { await api.delete(`/procurement/items/uoms/${u.id}`); } catch (e) { setMsg(e?.response?.data?.message || "Failed"); return; }
+    }
+    setUoms(uoms.filter((x) => x.id !== u.id));
+    if (isEdit) api.get("/procurement/items/" + editId).then((r) => setUoms(r.data.data.uoms || [])).catch(() => {});
+  };
+  const addStockRow = async () => {
+    if (!newStock.warehouse || !(Number(newStock.qty) > 0)) { setMsg("Warehouse and quantity required"); return; }
+    setMsg("");
+    const row = { warehouse: newStock.warehouse, locator: newStock.locator || null, qty: Number(newStock.qty), uom: newStock.uom || form.unit };
+    if (isEdit) {
+      try {
+        const r = await api.post(`/procurement/items/${editId}/stocks`, row);
+        setStocks([...stocks, r.data.data]);
+      } catch (e) { setMsg(e?.response?.data?.message || "Failed"); return; }
+    } else {
+      setStocks([...stocks, { ...row, id: "tmp" + Date.now() }]);
+    }
+    setNewStock({ warehouse: "", locator: "", qty: "", uom: "" });
+  };
+  const delStockRow = async (s) => {
+    if (isEdit && !String(s.id).startsWith("tmp")) {
+      try { await api.delete(`/procurement/items/stocks/${s.id}`); } catch (e) { setMsg(e?.response?.data?.message || "Failed"); return; }
+    }
+    setStocks(stocks.filter((x) => x.id !== s.id));
   };
   const uploadImage = async (e) => {
     const f = e.target.files[0];
@@ -193,6 +298,7 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
   const purchase = Number(form.purchase_price || 0);
   const sell = Number(form.sell_price || 0);
   const marginPct = sell > 0 ? ((sell - purchase) / sell) * 100 : 0;
+  const baseUom = (uoms.find((u) => u.is_base)?.uom) || form.unit || "";
 
   return (
     <div className="bigin-drawer-overlay" onClick={onClose}>
@@ -375,7 +481,106 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
 
           {tab === "details" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <Sec title="Units & Identification">
+            <Sec title="Pricing Control">
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+                <input type="checkbox" checked={!!form.limit_price_as_cost} onChange={(e) => set({ limit_price_as_cost: e.target.checked })} style={{ accentColor: "#0ba360", width: 15, height: 15 }} />
+                <span>{t(lang, "limitPriceCost")}</span>
+              </label>
+            </Sec>
+            <Sec title={t(lang, "uomConversions")}>
+              <div className="table-wrap"><table className="tbl">
+                <thead><tr>
+                  <th>UOM</th><th style={{ textAlign: "center" }}>Base</th><th style={{ textAlign: "right" }}>Conversion</th>
+                  <th style={{ textAlign: "right" }}>Markup %</th><th style={{ textAlign: "right" }}>Purchase</th>
+                  <th style={{ textAlign: "right" }}>Cost</th><th style={{ textAlign: "right" }}>Sales</th>
+                  <th style={{ textAlign: "right" }}>Limit</th><th style={{ textAlign: "center" }}>Def. Sales</th>
+                  <th style={{ textAlign: "center" }}>Def. Purch.</th><th style={{ width: 44 }}></th>
+                </tr></thead>
+                <tbody>
+                  {uoms.map((u) => (
+                    <tr key={u.id}>
+                      <td style={{ fontWeight: 600 }}>{u.uom}</td>
+                      <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!u.is_base} disabled style={{ accentColor: "#0ba360" }} /></td>
+                      <td style={{ textAlign: "right" }}>{Number(u.conversion_to_base || 0).toLocaleString(undefined, { maximumFractionDigits: 4 })}</td>
+                      <td style={{ textAlign: "right" }}>{Number(u.markup_pct || 0).toLocaleString()}%</td>
+                      <td style={{ textAlign: "right" }}>{Number(u.purchase_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      <td style={{ textAlign: "right" }}>{Number(u.cost_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      <td style={{ textAlign: "right", fontWeight: 700, color: "#0ba360" }}>{Number(u.sales_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      <td style={{ textAlign: "right" }}>{Number(u.limit_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                      <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!u.is_default_sales} disabled style={{ accentColor: "#0ba360" }} /></td>
+                      <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!u.is_default_purchase} disabled style={{ accentColor: "#0ba360" }} /></td>
+                      <td style={{ textAlign: "center" }}><button type="button" className="btn ghost sm" style={{ padding: "2px 6px", fontSize: 11, color: "#e11d48" }} onClick={() => delUomRow(u)}>×</button></td>
+                    </tr>
+                  ))}
+                  <tr style={{ background: "#f8fafc" }}>
+                    <td>
+                      <select className="bigin-input" value={newUom.uom} onChange={(e) => setNewUom({ ...newUom, uom: e.target.value })}>
+                        <option value="">Select UoM</option>
+                        {(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code} — {x.name}</option>))}
+                      </select>
+                    </td>
+                    <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_base} onChange={(e) => setNewUom({ ...newUom, is_base: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
+                    <td><input className="bigin-input" type="number" step="0.0001" value={newUom.conversion_to_base} onChange={(e) => setNewUom({ ...newUom, conversion_to_base: e.target.value })} /></td>
+                    <td><input className="bigin-input" type="number" step="0.01" value={newUom.markup_pct} onChange={(e) => setNewUom({ ...newUom, markup_pct: e.target.value })} /></td>
+                    <td><input className="bigin-input" type="number" step="0.01" value={newUom.purchase_price} onChange={(e) => setNewUom({ ...newUom, purchase_price: e.target.value })} /></td>
+                    <td><input className="bigin-input" type="number" step="0.01" value={newUom.cost_price} onChange={(e) => setNewUom({ ...newUom, cost_price: e.target.value })} /></td>
+                    <td><input className="bigin-input" type="number" step="0.01" value={newUom.sales_price} onChange={(e) => setNewUom({ ...newUom, sales_price: e.target.value })} /></td>
+                    <td><input className="bigin-input" type="number" step="0.01" value={form.limit_price_as_cost ? (newUom.cost_price || 0) : newUom.limit_price} disabled={form.limit_price_as_cost} onChange={(e) => setNewUom({ ...newUom, limit_price: e.target.value })} /></td>
+                    <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_default_sales} onChange={(e) => setNewUom({ ...newUom, is_default_sales: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
+                    <td style={{ textAlign: "center" }}><input type="checkbox" checked={!!newUom.is_default_purchase} onChange={(e) => setNewUom({ ...newUom, is_default_purchase: e.target.checked })} style={{ accentColor: "#0ba360" }} /></td>
+                    <td style={{ textAlign: "center" }}><button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={addUomRow}>+</button></td>
+                  </tr>
+                </tbody></table></div>
+            </Sec>
+            <Sec title="Warehousing & Stock Levels">
+            <div className="bigin-form-grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <F k="defaultWarehouse">
+                <select className="bigin-input" value={form.default_warehouse} onChange={(e) => set({ default_warehouse: e.target.value })}>
+                  <option value="">Select an Option</option>
+                  {(lookups.warehouse || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
+                </select>
+              </F>
+              <F k="defaultLocator"><input className="bigin-input" value={form.default_locator} onChange={(e) => set({ default_locator: e.target.value })} placeholder="Select an Option" /></F>
+              <F k="minPurchQty"><input className="bigin-input" type="number" step="0.001" value={form.min_purchase_qty} onChange={(e) => set({ min_purchase_qty: e.target.value })} /></F>
+              <F k="uomQty"><select className="bigin-input" value={form.purchase_qty_uom} onChange={(e) => set({ purchase_qty_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
+              <F k="minStockQty"><input className="bigin-input" type="number" step="0.001" value={form.min_qty} onChange={(e) => set({ min_qty: e.target.value })} /></F>
+              <F k="uomQty"><select className="bigin-input" value={form.min_stock_uom} onChange={(e) => set({ min_stock_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
+              <F k="openingDate"><input className="bigin-input" type="date" value={form.opening_date || ""} onChange={(e) => set({ opening_date: e.target.value })} /></F>
+              <div />
+              <F k="maxStockQty"><input className="bigin-input" type="number" step="0.001" value={form.max_qty} onChange={(e) => set({ max_qty: e.target.value })} /></F>
+              <F k="uomQty"><select className="bigin-input" value={form.max_stock_uom} onChange={(e) => set({ max_stock_uom: e.target.value })}><option value="">—</option>{(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}</select></F>
+            </div>
+            </Sec>
+            <Sec title={t(lang, "whStocks")}>
+              <div className="table-wrap"><table className="tbl">
+                <thead><tr><th>Warehouse</th><th>Locator</th><th style={{ textAlign: "right" }}>Quantity</th><th>UOM</th><th style={{ width: 44 }}></th></tr></thead>
+                <tbody>
+                  {stocks.map((s) => (
+                    <tr key={s.id}><td style={{ fontWeight: 600 }}>{s.warehouse}</td><td>{s.locator || "—"}</td>
+                      <td style={{ textAlign: "right", fontWeight: 700 }}>{Number(s.qty || 0).toLocaleString(undefined, { maximumFractionDigits: 3 })}</td>
+                      <td>{s.uom || form.unit}</td>
+                      <td style={{ textAlign: "center" }}><button type="button" className="btn ghost sm" style={{ padding: "2px 6px", fontSize: 11, color: "#e11d48" }} onClick={() => delStockRow(s)}>×</button></td></tr>
+                  ))}
+                  <tr style={{ background: "#f8fafc" }}>
+                    <td>
+                      <select className="bigin-input" value={newStock.warehouse} onChange={(e) => setNewStock({ ...newStock, warehouse: e.target.value })}>
+                        <option value="">Select an Option</option>
+                        {(lookups.warehouse || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
+                      </select>
+                    </td>
+                    <td><input className="bigin-input" value={newStock.locator} onChange={(e) => setNewStock({ ...newStock, locator: e.target.value })} placeholder="Select an Option" /></td>
+                    <td><input className="bigin-input" type="number" step="0.001" value={newStock.qty} onChange={(e) => setNewStock({ ...newStock, qty: e.target.value })} /></td>
+                    <td>
+                      <select className="bigin-input" value={newStock.uom} onChange={(e) => setNewStock({ ...newStock, uom: e.target.value })}>
+                        <option value="">Select UoM</option>
+                        {(lookups.uom || []).map((x) => (<option key={x.id} value={x.code}>{x.code}</option>))}
+                      </select>
+                    </td>
+                    <td style={{ textAlign: "center" }}><button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={addStockRow}>+</button></td>
+                  </tr>
+                </tbody></table></div>
+            </Sec>
+            <Sec title="Units & Barcode">
             <div className="bigin-form-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
               <F k="unit">
                 <select className="bigin-input" value={form.unit} onChange={(e) => set({ unit: e.target.value })}>
@@ -441,28 +646,37 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
             </div>
             </Sec>
             <Sec title={t(lang, "priceLists")}>
+              <div style={{ fontSize: 12, color: "#c2570b", fontWeight: 700, marginBottom: 8 }}>
+                {baseUom ? `${baseUom} (Base UoM)` : `${form.unit || ""} (Base UoM)`}
+              </div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                 <input className="bigin-input" style={{ maxWidth: 150 }} placeholder="Price list" value={newPrice.price_list} onChange={(e) => setNewPrice({ ...newPrice, price_list: e.target.value })} />
+                <input className="bigin-input" style={{ maxWidth: 100 }} type="number" step="0.01" placeholder="%" value={newPrice.markup_pct} onChange={(e) => setNewPrice({ ...newPrice, markup_pct: e.target.value })} />
                 <select className="bigin-input" style={{ maxWidth: 100 }} value={newPrice.currency} onChange={(e) => setNewPrice({ ...newPrice, currency: e.target.value })}>{["SAR", "USD", "EUR", "AED"].map((x) => (<option key={x}>{x}</option>))}</select>
                 <input className="bigin-input" style={{ maxWidth: 130 }} type="number" step="0.01" placeholder="Unit price *" value={newPrice.unit_price} onChange={(e) => setNewPrice({ ...newPrice, unit_price: e.target.value })} />
                 <input className="bigin-input" style={{ maxWidth: 110 }} type="number" step="0.001" placeholder="Min qty" value={newPrice.min_qty} onChange={(e) => setNewPrice({ ...newPrice, min_qty: e.target.value })} />
+                <input className="bigin-input" style={{ maxWidth: 150 }} type="date" value={newPrice.effective_from} onChange={(e) => setNewPrice({ ...newPrice, effective_from: e.target.value })} />
                 <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360" }} onClick={() => {
                   if (!newPrice.unit_price) return;
                   if (isEdit) addPriceApi();
-                  else setPrices([...prices, { ...newPrice, unit_price: Number(newPrice.unit_price), min_qty: Number(newPrice.min_qty || 1), id: "tmp" + Date.now() }]);
-                  setNewPrice({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1 });
+                  else setPrices([...prices, { ...newPrice, unit_price: Number(newPrice.unit_price), min_qty: Number(newPrice.min_qty || 1), markup_pct: Number(newPrice.markup_pct || 0), id: "tmp" + Date.now() }]);
+                  setNewPrice({ price_list: "Standard", currency: "SAR", unit_price: "", min_qty: 1, markup_pct: 0, effective_from: "" });
                 }}>+</button>
               </div>
               <div className="table-wrap"><table className="tbl">
-                <thead><tr><th>Price list</th><th>Currency</th><th style={{ textAlign: "right" }}>Unit price</th><th style={{ textAlign: "right" }}>Min qty</th><th></th></tr></thead>
+                <thead><tr><th></th><th style={{ textAlign: "right" }}>Percentage</th><th></th><th></th><th>Date</th><th></th></tr></thead>
                 <tbody>{prices.map((p) => (
-                  <tr key={p.id}><td style={{ fontWeight: 600 }}>{p.price_list}</td><td>{p.currency}</td><td style={{ textAlign: "right", fontWeight: 700 }}>{Number(p.unit_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td><td style={{ textAlign: "right" }}>{p.min_qty}</td>
+                  <tr key={p.id}><td style={{ fontWeight: 600 }}>{p.price_list}</td>
+                    <td style={{ textAlign: "right" }}>{Number(p.markup_pct || 0).toLocaleString()}%</td>
+                    <td>{p.currency}</td>
+                    <td style={{ textAlign: "right", fontWeight: 700 }}>{Number(p.unit_price).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td>{p.effective_from ? new Date(p.effective_from).toLocaleDateString("en-GB") : "—"}</td>
                     <td style={{ textAlign: "center" }}><button type="button" className="btn ghost sm" style={{ padding: "2px 6px", fontSize: 11, color: "#e11d48" }} onClick={() => {
                       if (isEdit && !String(p.id).startsWith("tmp")) delPriceApi(p.id);
                       else setPrices(prices.filter((x) => x.id !== p.id));
                     }}>×</button></td></tr>
                 ))}
-                {!prices.length && <tr><td colSpan={5} className="muted" style={{ textAlign: "center", padding: 16 }}>—</td></tr>}
+                {!prices.length && <tr><td colSpan={6} className="muted" style={{ textAlign: "center", padding: 16 }}>—</td></tr>}
                 </tbody></table></div>
             </Sec>
             </div>
@@ -488,8 +702,18 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                       else setSpecs(specs.filter((x) => x.id !== s.id));
                     }}>×</button></td></tr>
                 ))}
-                {!specs.length && <tr><td colSpan={3} className="muted" style={{ textAlign: "center", padding: 16 }}>—</td></tr>}
+                {!specs.length && <tr><td colSpan={3} style={{ textAlign: "center", padding: 16, color: "#e11d48", background: "#f0f9ff", fontSize: 13 }}>{t(lang, "noRecords")}</td></tr>}
                 </tbody></table></div>
+              <button type="button" className="btn sm" style={{ background: "#0ba360", borderColor: "#0ba360", marginTop: 10 }} onClick={() => {
+                const name = window.prompt("Specification attribute:");
+                if (!name) return;
+                const val = window.prompt("Value for " + name + ":") || "";
+                if (isEdit) {
+                  api.post(`/procurement/items/${editId}/specs`, { attr_name: name, attr_value: val })
+                    .then((r) => setSpecs([...specs, r.data.data]))
+                    .catch((e) => setMsg(e?.response?.data?.message || "Failed"));
+                } else setSpecs([...specs, { attr_name: name, attr_value: val, id: "tmp" + Date.now() }]);
+              }}>+ {t(lang, "addNewLbl")}</button>
             </Sec>
           )}
 
@@ -502,21 +726,15 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
                 </div>
               ) : (
                 <div>
-                  <label className="btn ghost sm" style={{ display: "inline-block", cursor: "pointer", marginBottom: 12 }}>
-                    Upload image<input type="file" accept="image/*" hidden onChange={uploadImage} />
-                  </label>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 12 }}>
                     {images.map((img) => (
-                      <div key={img.id} className="card" style={{ padding: 10, textAlign: "center" }}>
-                        <div style={{ fontSize: 34 }}>🖼️</div>
-                        <div style={{ fontSize: 12, wordBreak: "break-all", margin: "6px 0" }}>{img.file_name}</div>
-                        <div className="muted" style={{ fontSize: 11 }}>{img.size ? Math.round(img.size / 1024) + " KB" : ""}</div>
-                        <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 8 }}>
-                          <a className="btn ghost sm" href={`/api/v1/documents/${img.id}/download`} target="_blank" rel="noreferrer">↓</a>
-                          <button type="button" className="btn ghost sm" style={{ color: "#e11d48" }} onClick={() => delImage(img.id)}>×</button>
-                        </div>
-                      </div>
+                      <ImgThumb key={img.id} img={img} onDelete={() => delImage(img.id)} />
                     ))}
+                    <label style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "18px 10px", border: "1px dashed #cbd5e1", borderRadius: 8, background: "#f8fafc" }}>
+                      {IMG_PLACEHOLDER}
+                      <span style={{ fontSize: 12.5, color: "#1d5bd8", fontWeight: 600 }}>{t(lang, "browsePicture")}</span>
+                      <input type="file" accept="image/*" hidden onChange={uploadImage} />
+                    </label>
                     {!images.length && <p className="muted">No images yet.</p>}
                   </div>
                 </div>
@@ -531,12 +749,8 @@ function ItemDrawer({ editId, onClose, onSaved, onDraftCreated, lookups, vatRate
           <span className="muted" style={{ fontSize: 12.5 }}>📎 {t(lang, "attachments")} ({images.length})</span>
           <span style={{ flex: 1 }} />
           <button type="button" className="btn ghost" onClick={onClose}>{t(lang, "closeLbl")}</button>
-          {idx > 0 && <button type="button" className="btn ghost" onClick={() => setTab(TABS[idx - 1])}>←</button>}
-          {isEdit
-            ? <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} disabled={busy} onClick={() => save(false)}>{busy ? "..." : "✓ " + t(lang, "saveChanges")}</button>
-            : (idx < TABS.length - 1
-              ? <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} onClick={next}>{t(lang, "nextLbl")} →</button>
-              : <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} disabled={busy} onClick={() => save(false)}>{busy ? "..." : "✓ " + t(lang, "createItem")}</button>)}
+          <button type="button" className="btn" style={{ background: "#0284c7", borderColor: "#0284c7", fontWeight: 600 }} disabled={busy} onClick={() => save(false)}>{busy ? "..." : t(lang, "saveLbl")}</button>
+          <button type="button" className="btn" style={{ background: "#0ba360", borderColor: "#0ba360", fontWeight: 600 }} disabled={busy} onClick={saveAndNext}>{busy ? "..." : t(lang, "saveNext")}</button>
         </div>
       </div>
     </div>
@@ -578,7 +792,7 @@ export default function MaterialsPage() {
     api.get("/procurement/reorder").then((r) => setReorders(r.data.data || [])).catch(() => {});
   };
   const refreshLookups = () => {
-    Promise.all(["item_category", "manufacturer", "uom", "department"].map((ty) => api.get("/masters/lookup/" + ty).then((r) => [ty, r.data.data || []]).catch(() => [ty, []])))
+    Promise.all(["item_category", "manufacturer", "uom", "department", "warehouse"].map((ty) => api.get("/masters/lookup/" + ty).then((r) => [ty, r.data.data || []]).catch(() => [ty, []])))
       .then((pairs) => setLookups(Object.fromEntries(pairs)));
   };
   useEffect(() => {
