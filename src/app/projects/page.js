@@ -873,17 +873,48 @@ export default function Projects() {
                   <div className="bigin-drawer-sec-title">1. Project Classification & General Information</div>
                   <div className="form-grid">
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <label className="label">Project Code / Identifier *</label>
+                      <label className="label">
+                        Project Code <span style={{ color: "#dc2626" }}>*</span>
+                      </label>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                        <input
+                          className="input"
+                          placeholder="e.g. PRJ-2026-001"
+                          value={form.code}
+                          onChange={set("code")}
+                          required
+                          style={{ paddingRight: 86, fontWeight: 700, letterSpacing: "0.02em" }}
+                        />
                         <button
                           type="button"
                           onClick={autoGenerateCode}
-                          style={{ border: "none", background: "none", color: "#0ba360", fontSize: 11, cursor: "pointer", fontWeight: 700 }}
+                          style={{
+                            position: "absolute",
+                            right: 6,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            border: "1px solid #bbf7d0",
+                            background: "#f0fdf4",
+                            color: "#166534",
+                            fontSize: 11.5,
+                            fontWeight: 700,
+                            padding: "4px 9px",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                            transition: "all 0.12s ease",
+                          }}
+                          title="Generate next sequential project code (e.g. PRJ-2026-004)"
                         >
-                          ⚡ Auto-Generate
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                          </svg>
+                          <span>Auto</span>
                         </button>
                       </div>
-                      <input className="input" placeholder="e.g. PRJ-2026-001" value={form.code} onChange={set("code")} required />
                     </div>
                     <div>
                       <label className="label">Project Name (English) *</label>
