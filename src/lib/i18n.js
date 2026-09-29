@@ -66,6 +66,7 @@ export const STR = {
     deleteLbl: "Delete", tabActivity: "Activity", tabDocuments: "Documents",
     manpower7: "Manpower-days (7d)", uploadLbl: "Upload", downloadLbl: "Download",
     expiringSoon: "Expiring soon",
+    agingLbl: "Aging", contactsLbl: "Contacts", addContact: "Add",
   },
   ar: {
     app: "Qulf ERP", tagline: "نظام تخطيط موارد المقاولات والمساحة الكمية",
@@ -134,6 +135,7 @@ export const STR = {
     deleteLbl: "حذف", tabActivity: "النشاط", tabDocuments: "المستندات",
     manpower7: "أيام العمل (7 أيام)", uploadLbl: "رفع", downloadLbl: "تحميل",
     expiringSoon: "تنتهي قريباً",
+    agingLbl: "تقادم الديون", contactsLbl: "جهات الاتصال", addContact: "إضافة",
   },
 };
 export const t = (lang, key) => (STR[lang] && STR[lang][key]) || STR.en[key] || key;

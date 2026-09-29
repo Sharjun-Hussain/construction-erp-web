@@ -83,22 +83,29 @@ const RETENTION_RELEASE_MODES = [
   "100% on TOC with Maintenance Bank Guarantee",
   "100% on Final Acceptance Certificate",
 ];
-const SAUDI_CITIES = [
-  "Riyadh",
-  "Jeddah",
-  "Dammam",
-  "Mecca",
-  "Medina",
-  "Khobar",
-  "Neom",
-  "Tabuk",
-  "Al-Ula",
-  "Dhahran",
-  "Yanbu",
-  "Jizan",
-  "Jubail",
-  "Abha",
+const SAUDI_CITIES_DETAILED = [
+  { value: "Riyadh", nameAr: "الرياض", region: "Central Region (Capital)" },
+  { value: "Jeddah", nameAr: "جدة", region: "Makkah Province (Western)" },
+  { value: "Dammam", nameAr: "الدمام", region: "Eastern Province" },
+  { value: "Khobar", nameAr: "الخبر", region: "Eastern Province" },
+  { value: "Dhahran", nameAr: "الظهران", region: "Eastern Province" },
+  { value: "Jubail", nameAr: "الجبيل", region: "RCJY Industrial" },
+  { value: "Mecca", nameAr: "مكة المكرمة", region: "Holy Capital" },
+  { value: "Medina", nameAr: "المدينة المنورة", region: "Al Madinah" },
+  { value: "Neom", nameAr: "نيوم", region: "Tabuk Giga Projects" },
+  { value: "Al-Ula", nameAr: "العلا", region: "Royal Commission (RCU)" },
+  { value: "Tabuk", nameAr: "تبوك", region: "Northern Province" },
+  { value: "Yanbu", nameAr: "ينبع", region: "RCJY Industrial" },
+  { value: "Abha", nameAr: "أبها", region: "Asir Region" },
+  { value: "Khamis Mushait", nameAr: "خميس مشيط", region: "Asir Region" },
+  { value: "Jizan", nameAr: "جازان", region: "Southern Region" },
+  { value: "Qassim", nameAr: "القصيم / بريدة", region: "Central Region" },
+  { value: "Hail", nameAr: "حائل", region: "Northern Region" },
+  { value: "Najran", nameAr: "نجران", region: "Southern Border" },
+  { value: "Taif", nameAr: "الطائف", region: "Makkah Province" },
 ];
+const TOP_CITIES = ["Riyadh", "Jeddah", "Dammam", "Neom"];
+const SAUDI_CITIES = SAUDI_CITIES_DETAILED.map((c) => c.value);
 const PAYMENT_TERMS_LIST = [
   "Immediate on Approval",
   "Net 15 Days",
@@ -1088,9 +1095,24 @@ export default function Projects() {
                   <div className="form-grid">
                     <div>
                       <label className="label">City / Region (KSA)</label>
-                      <input className="input" value={form.city} onChange={set("city")} placeholder="City" />
+                      <input
+                        className="input"
+                        list="create-project-cities"
+                        value={form.city}
+                        onChange={set("city")}
+                        placeholder="Search or type city (e.g. Riyadh, Jeddah, Neom)..."
+                        autoComplete="off"
+                      />
+                      <datalist id="create-project-cities">
+                        {SAUDI_CITIES_DETAILED.map((c) => (
+                          <option key={c.value} value={c.value}>
+                            {c.value} ({c.nameAr}) — {c.region}
+                          </option>
+                        ))}
+                      </datalist>
                       <div className="city-chips-wrap">
-                        {SAUDI_CITIES.map((c) => (
+                        <span className="city-frequent-tag">Quick:</span>
+                        {TOP_CITIES.map((c) => (
                           <button
                             key={c}
                             type="button"
@@ -1776,10 +1798,25 @@ export default function Projects() {
                     <div className="bigin-drawer-sec-title">4. Location & Timeline</div>
                     <div className="form-grid">
                       <div>
-                        <label className="label">City</label>
-                        <input className="input" value={editForm.city} onChange={setEdit("city")} />
+                        <label className="label">City / Region (KSA)</label>
+                        <input
+                          className="input"
+                          list="edit-project-cities"
+                          value={editForm.city}
+                          onChange={setEdit("city")}
+                          placeholder="Search or type city..."
+                          autoComplete="off"
+                        />
+                        <datalist id="edit-project-cities">
+                          {SAUDI_CITIES_DETAILED.map((c) => (
+                            <option key={c.value} value={c.value}>
+                              {c.value} ({c.nameAr}) — {c.region}
+                            </option>
+                          ))}
+                        </datalist>
                         <div className="city-chips-wrap">
-                          {SAUDI_CITIES.slice(0, 7).map((c) => (
+                          <span className="city-frequent-tag">Quick:</span>
+                          {TOP_CITIES.map((c) => (
                             <button
                               key={c}
                               type="button"
