@@ -113,15 +113,24 @@ export default function TranquilEstimationModal({
   const [errorMsg, setErrorMsg] = useState("");
   const [showAttachDialog, setShowAttachDialog] = useState(false);
 
-  // Close on ESC key press
+  // Close on ESC key press & lock body scroll
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [isOpen, onClose]);
 
   // Load supporting lists
@@ -376,9 +385,24 @@ export default function TranquilEstimationModal({
         {/* 3. MAIN FULL-SCREEN SCROLLABLE FORM BODY */}
         <form
           onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: "1 1 0%",
+            minHeight: 0,
+            height: "calc(100vh - 65px)",
+            overflow: "hidden",
+          }}
         >
-          <div className="tranquil-modal-body">
+          <div
+            className="tranquil-modal-body"
+            style={{
+              flex: "1 1 0%",
+              minHeight: 0,
+              overflowY: "auto",
+              overflowX: "hidden",
+            }}
+          >
             <div className="tranquil-container-center">
               {/* SECTION 1: COMMERCIAL HEADER & SCHEDULING */}
               <div className="tranquil-card-section">

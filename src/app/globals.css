@@ -2948,6 +2948,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   justify-content: stretch;
   backdrop-filter: blur(4px);
   padding: 0;
+  overflow: hidden !important;
   animation: tranquilFadeIn 0.15s ease-out;
 }
 @keyframes tranquilFadeIn {
@@ -2965,7 +2966,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outli
   box-shadow: none;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden !important;
   font-family: inherit;
   border: none;
 }
