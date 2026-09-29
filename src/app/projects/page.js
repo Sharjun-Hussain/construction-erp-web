@@ -115,6 +115,15 @@ const PAYMENT_TERMS_LIST = [
   "Net 90 Days",
 ];
 
+const LIFECYCLE_STAGES = [
+  { key: "Draft", label: "Draft", desc: "Planning & BOQ Setup" },
+  { key: "Tender", label: "Tender", desc: "Active Bidding" },
+  { key: "Awarded", label: "Awarded", desc: "Mobilization & Advance" },
+  { key: "InProgress", label: "InProgress", desc: "Site Execution & IPC Claims" },
+  { key: "HandedOver", label: "HandedOver", desc: "Taking-Over (TOC) & 50% Retention" },
+  { key: "Completed", label: "Completed", desc: "Final DLC & Settled" },
+];
+
 const empty = {
   // 1. General & Classification
   code: "",
@@ -258,6 +267,7 @@ export default function Projects() {
   const [editForm, setEditForm] = useState(empty);
   const [editLoading, setEditLoading] = useState(false);
   const [editActiveTab, setEditActiveTab] = useState("edit-basic");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   // New Project Form state
   const [form, setForm] = useState(empty);
@@ -527,6 +537,23 @@ export default function Projects() {
     const yr = new Date().getFullYear();
     const num = String(total + 1).padStart(3, "0");
     setVal("code", `PRJ-${yr}-${num}`);
+  };
+
+  // Change Project Lifecycle Status (Tranquil Stage Transition)
+  const changeProjectStatus = async (newStatus) => {
+    if (!viewData || newStatus === viewData.status) return;
+    if (!window.confirm(`Update project lifecycle status to "${newStatus}"?`)) return;
+    try {
+      setUpdatingStatus(true);
+      await api.put(`/projects/${viewData.id}`, { status: newStatus });
+      setViewData((prev) => ({ ...prev, status: newStatus }));
+      setMsg(`Project status updated to "${newStatus}"`);
+      load();
+    } catch (err) {
+      setMsg(err?.response?.data?.message || "Failed to update project status");
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   // Create Project submit
@@ -943,11 +970,13 @@ export default function Projects() {
                     <div>
                       <label className="label">Initial Lifecycle Status</label>
                       <select className="select" value={form.status} onChange={set("status")}>
-                        <option value="Draft">Draft (Preliminary Planning)</option>
-                        <option value="Tender">Tender (Bidding Stage)</option>
-                        <option value="Awarded">Awarded (Contract Mobilization)</option>
-                        <option value="InProgress">InProgress (Active Construction)</option>
-                        <option value="OnHold">OnHold (Suspended)</option>
+                        <option value="Draft">Draft — Preliminary Planning & BOQ Setup</option>
+                        <option value="Tender">Tender — Active Bidding & Estimations</option>
+                        <option value="Awarded">Awarded — Contract Signed & Mobilization</option>
+                        <option value="InProgress">InProgress — Site Construction Execution & IPC Claims</option>
+                        <option value="OnHold">OnHold — Temporarily Suspended</option>
+                        <option value="HandedOver">HandedOver — Taking-Over Certificate (TOC)</option>
+                        <option value="Completed">Completed — Final Account & Defect Liability</option>
                       </select>
                     </div>
                     <div>
@@ -1381,6 +1410,61 @@ export default function Projects() {
               </div>
             </div>
 
+            {/* Tranquil Interactive Lifecycle Stage Pipeline */}
+            {viewData && (
+              <>
+                <div className="tranquil-lifecycle-bar">
+                  {LIFECYCLE_STAGES.map((st, idx) => {
+                    const currentIdx = LIFECYCLE_STAGES.findIndex((s) => s.key === viewData.status);
+                    const isCurrent = viewData.status === st.key;
+                    const isPassed = currentIdx > idx;
+                    return (
+                      <button
+                        key={st.key}
+                        type="button"
+                        disabled={updatingStatus}
+                        className={"tranquil-stage-step" + (isCurrent ? " current" : "") + (isPassed ? " passed" : "")}
+                        onClick={() => changeProjectStatus(st.key)}
+                        title={`Click to transition lifecycle stage to: ${st.label} (${st.desc})`}
+                      >
+                        <span className="step-num">{isPassed ? "✓" : idx + 1}</span>
+                        <span className="step-text">{st.label}</span>
+                      </button>
+                    );
+                  })}
+                  {viewData.status !== "OnHold" && (
+                    <button
+                      type="button"
+                      disabled={updatingStatus}
+                      className="tranquil-stage-step"
+                      onClick={() => changeProjectStatus("OnHold")}
+                      style={{ color: "#b45309", borderColor: "#fde68a" }}
+                      title="Suspend / Place Project On Hold"
+                    >
+                      ⏸ On Hold
+                    </button>
+                  )}
+                </div>
+
+                {viewData.status === "OnHold" && (
+                  <div className="tranquil-onhold-alert">
+                    <span>
+                      ⏸ <strong>Project Temporarily OnHold / Suspended:</strong> Site logs & procurement activities are frozen.
+                    </span>
+                    <button
+                      type="button"
+                      disabled={updatingStatus}
+                      className="btn sm"
+                      onClick={() => changeProjectStatus("InProgress")}
+                      style={{ background: "#0ba360", color: "#fff" }}
+                    >
+                      Resume Site Execution
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
             <div className="bigin-drawer-body">
               {viewLoading ? (
                 <div style={{ textAlign: "center", padding: "40px 0", color: "#64748b" }}>Loading details...</div>
@@ -1755,6 +1839,18 @@ export default function Projects() {
                       <div>
                         <label className="label">Cost Center / Branch</label>
                         <input className="input" value={editForm.cost_center} onChange={setEdit("cost_center")} />
+                      </div>
+                      <div>
+                        <label className="label">Lifecycle Status</label>
+                        <select className="select" value={editForm.status} onChange={setEdit("status")}>
+                          <option value="Draft">Draft — Preliminary Planning & BOQ Setup</option>
+                          <option value="Tender">Tender — Active Bidding & Estimations</option>
+                          <option value="Awarded">Awarded — Contract Signed & Mobilization</option>
+                          <option value="InProgress">InProgress — Site Construction Execution & IPC Claims</option>
+                          <option value="OnHold">OnHold — Temporarily Suspended</option>
+                          <option value="HandedOver">HandedOver — Taking-Over Certificate (TOC)</option>
+                          <option value="Completed">Completed — Final Account & Defect Liability</option>
+                        </select>
                       </div>
                     </div>
                   </div>
