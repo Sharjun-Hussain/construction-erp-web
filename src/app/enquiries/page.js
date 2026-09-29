@@ -412,10 +412,10 @@ export default function EnquiriesPage() {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {/* Status Filter */}
             <select
-              className="select"
-              style={{ minWidth: 130, height: 32, fontSize: 12 }}
+              className="bigin-select-pill"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              title="Filter by enquiry lifecycle status"
             >
               <option value="">All Statuses</option>
               {STATUSES.map((s) => (
@@ -427,10 +427,10 @@ export default function EnquiriesPage() {
 
             {/* Source Filter */}
             <select
-              className="select"
-              style={{ minWidth: 120, height: 32, fontSize: 12 }}
+              className="bigin-select-pill"
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
+              title="Filter by acquisition source"
             >
               <option value="">All Sources</option>
               {SOURCES.map((sc) => (

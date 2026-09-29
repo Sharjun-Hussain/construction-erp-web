@@ -841,6 +841,42 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 700; letter-spacing: -0.02em; color:
 .input::placeholder, .textarea::placeholder { color: #a5b0c5; }
 .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(29, 91, 216, 0.13); }
 .input:hover, .select:hover, .textarea:hover { border-color: #b9c6e2; }
+.select.sm,
+.bigin-select-pill {
+  width: auto;
+  height: 32px !important;
+  line-height: 30px !important;
+  padding: 0 28px 0 12px !important;
+  font-size: 12.5px !important;
+  font-weight: 550 !important;
+  color: #334155 !important;
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 9px) center !important;
+  background-size: 12px 12px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 18px !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+.select.sm:hover,
+.bigin-select-pill:hover {
+  border-color: #0ba360 !important;
+  color: #0f172a !important;
+}
+.select.sm:focus,
+.bigin-select-pill:focus {
+  border-color: #0ba360 !important;
+  box-shadow: 0 0 0 3px rgba(11, 163, 96, 0.12) !important;
+  color: #0f172a !important;
+}
 .label { display: block; font-size: 12px; font-weight: 650; color: var(--text-2); margin-bottom: 6px; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 

@@ -554,8 +554,8 @@ export default function TendersPage() {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {/* Quick Project Filter */}
             <select
-              className="select"
-              style={{ minWidth: 160, maxWidth: 210, height: 32, fontSize: 12 }}
+              className="bigin-select-pill"
+              style={{ maxWidth: 210 }}
               value={pid}
               onChange={(e) => setPid(e.target.value)}
             >
@@ -569,8 +569,7 @@ export default function TendersPage() {
 
             {/* Quick Contract Type Filter */}
             <select
-              className="select"
-              style={{ minWidth: 120, height: 32, fontSize: 12 }}
+              className="bigin-select-pill"
               value={contractType}
               onChange={(e) => setContractType(e.target.value)}
             >
