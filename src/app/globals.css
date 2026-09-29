@@ -2755,3 +2755,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 
 
 
+
+/* ---- Sidebar hidden (mega menu is the navigation) ---- */
+.shell.no-sidebar .main { margin-inline-start: 0; }

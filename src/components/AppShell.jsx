@@ -9,6 +9,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 import MegaMenu from "@/components/MegaMenu";
 
 export default function AppShell({ children }) {
+  const SHOW_SIDEBAR = false; // sidebar hidden for now — mega menu is the navigation
   const path = usePathname();
   const router = useRouter();
   const { lang, setLang, projectId, setProjectId } = useAppStore();
@@ -62,19 +63,23 @@ export default function AppShell({ children }) {
   };
 
   return (
-    <div className="shell">
-      <Sidebar
-        lang={lang} path={path} user={user}
-        orgName={user?.organization?.name || ""}
-        projects={projects} projectId={projectId}
-        onSelectProject={selectProject} onLogout={logout}
-        mobileOpen={mobileOpen} onNavigate={() => setMobileOpen(false)}
-      />
+    <div className={"shell" + (SHOW_SIDEBAR ? "" : " no-sidebar")}>
+      {SHOW_SIDEBAR && (
+        <Sidebar
+          lang={lang} path={path} user={user}
+          orgName={user?.organization?.name || ""}
+          projects={projects} projectId={projectId}
+          onSelectProject={selectProject} onLogout={logout}
+          mobileOpen={mobileOpen} onNavigate={() => setMobileOpen(false)}
+        />
+      )}
       <div className="main">
         <div className="topbar">
-          <button className="hamburger" onClick={() => setMobileOpen(true)} aria-label="menu">
-            <span /><span /><span />
-          </button>
+          {SHOW_SIDEBAR && (
+            <button className="hamburger" onClick={() => setMobileOpen(true)} aria-label="menu">
+              <span /><span /><span />
+            </button>
+          )}
           <Breadcrumb lang={lang} path={path} projectCode={(projects.find((p) => p.id === projectId) || {}).code || ""} />
           <span className="spacer" />
           <button className="langbtn megabtn" onClick={() => setMegaOpen(true)} aria-label="menu">
