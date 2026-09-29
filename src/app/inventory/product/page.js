@@ -909,15 +909,6 @@ export default function MaterialsPage() {
       )}
       {msg && <div className="alert err" style={{ margin: "10px 24px" }} onClick={() => setMsg("")}>{msg}</div>}
 
-      {tab === "catalog" && (
-        <div style={{ display: "flex", justifyContent: "flex-end", margin: "0 24px 10px" }}>
-          <select className="bigin-input" style={{ maxWidth: 200 }} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); loadCatalog(1, limit); }}>
-            <option value="">All categories</option>
-            {(lookups.item_category || []).map((x) => (<option key={x.id} value={x.name}>{x.name}</option>))}
-          </select>
-        </div>
-      )}
-
       {tab === "catalog" ? (
         <DataTable
           columns={catalogColumns} rows={rows} total={total} page={page} limit={limit}

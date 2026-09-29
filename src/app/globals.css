@@ -752,8 +752,35 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 700; letter-spacing: -0.02em; color:
 .page { padding: 8px 28px 40px; max-width: 1320px; width: 100%; margin: 0 auto; }
 .page:has(> .dash) { max-width: none; }
 .page:has(> .project-detail) { max-width: none; }
-.page:has(> .projects-page),
+html:has(.bigin-dt-container),
+body:has(.bigin-dt-container),
+.shell:has(.bigin-dt-container) {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+.main:has(.bigin-dt-container) {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .page:has(.bigin-dt-container) {
+  padding: 0 !important;
+  max-width: none !important;
+  width: 100%;
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+.page:has(> .projects-page) {
   padding: 0 !important;
   max-width: none !important;
   width: 100%;
@@ -761,20 +788,22 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 700; letter-spacing: -0.02em; color:
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 50px);
-  max-height: calc(100vh - 50px);
-  overflow: hidden;
+  min-height: calc(100vh - 50px);
   background: #ffffff;
 }
 .projects-page {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: 100%;
+  min-height: 100%;
   width: 100%;
-  overflow: hidden;
+  overflow-y: auto;
   background: #ffffff;
+}
+.projects-page:has(.bigin-dt-container) {
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
 }
 .form-sec { margin-bottom: 14px; }
 .form-sec > h4 { margin: 0 0 12px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
@@ -1784,8 +1813,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 }
 
 .bigin-footer {
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0;
+  position: relative;
   z-index: 30;
   display: flex;
   align-items: center;
@@ -1797,7 +1826,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   flex-wrap: wrap;
   width: 100%;
   margin-top: auto;
-  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.05);
 }
 .bigin-footer-stats {
   display: flex;
